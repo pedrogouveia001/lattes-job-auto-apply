@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-DocênciaMatch / LattesJobAutoApply — Modern Social & Talent Platform.
-High-aesthetic job board & academic CV tailoring platform inspired by LinkedIn and Wellfound.
-Zero-password email dispatch via transactional APIs & 1-Click Gmail Web Intent.
-Google Authentication & Multi-tenant Profile Isolation.
+DocênciaMatch / LattesJobAutoApply — Universal Talent & Job Platform.
+- Dynamic Semantic Matching (Unbiased, driven by Candidate Resume & Target Search Criteria)
+- Universal Resume Parser (Supports ANY PDF or Text resume: Corporate, Academic, Tech)
+- Explicit Job Search Criteria Configuration (Cargos, Áreas, Modalidades, Cidades)
+- Manual Vacancy Registration + Master Spreadsheet Importer
+- Zero-Password Email Dispatch (1-Click Gmail Web & Transactional APIs)
+- Google OAuth & Multi-tenant Architecture
 """
 
 import streamlit as st
@@ -22,14 +25,14 @@ from database import (
     add_vacancy, get_user_vacancies, delete_user_vacancies,
     get_user_dispatches, update_vacancy_status
 )
-from lattes_extractor import parse_lattes_text, extract_text_from_pdf
-from tailor_engine import tailor_for_vacancy
+from cv_extractor import parse_universal_resume, extract_text_from_pdf
+from tailor_engine import tailor_for_vacancy, calculate_vacancy_match
 from pdf_engine import generate_tailored_pdf
 from email_engine import send_tailored_application_email, generate_gmail_web_intent
 from vacancy_service import import_vacancies_from_file
 
 st.set_page_config(
-    page_title="DocênciaMatch — Rede de Oportunidades Acadêmicas & Lattes",
+    page_title="DocênciaMatch — Plataforma Inteligente de Vagas & Currículos",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -44,12 +47,12 @@ st.markdown("""
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     }
     
-    /* Top Navbar Aesthetic */
+    /* Top Navbar */
     .top-nav {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 24px;
+        padding: 14px 24px;
         background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
         border-radius: 14px;
         margin-bottom: 20px;
@@ -77,39 +80,39 @@ st.markdown("""
         border: 1px solid rgba(56, 189, 248, 0.3);
     }
     
-    /* Profile Summary Card (Left Column) */
+    /* Left Profile Card */
     .profile-card {
         background: white;
         border-radius: 16px;
-        padding: 24px;
+        padding: 22px;
         border: 1px solid #E2E8F0;
         box-shadow: 0 2px 12px rgba(0,0,0,0.03);
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }
     .profile-avatar {
-        width: 80px;
-        height: 80px;
+        width: 72px;
+        height: 72px;
         border-radius: 50%;
         background: linear-gradient(135deg, #0A66C2 0%, #004182 100%);
         color: white;
-        font-size: 2rem;
+        font-size: 1.8rem;
         font-weight: 700;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 12px auto;
-        border: 4px solid #F1F5F9;
-        box-shadow: 0 4px 10px rgba(10, 102, 194, 0.25);
+        margin: 0 auto 10px auto;
+        border: 3px solid #F1F5F9;
+        box-shadow: 0 4px 10px rgba(10, 102, 194, 0.2);
     }
     .candidate-name {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: #0F172A;
         margin-bottom: 4px;
     }
     .candidate-title {
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         color: #475569;
         line-height: 1.35;
         margin-bottom: 12px;
@@ -117,91 +120,40 @@ st.markdown("""
     .stat-pill {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 4px;
         background: #F8FAFC;
         border: 1px solid #E2E8F0;
         border-radius: 20px;
-        padding: 6px 14px;
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: #1E293B;
-        margin: 3px;
-    }
-
-    /* Job Cards (Social Feed Style) */
-    .job-card {
-        background: white;
-        border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 22px;
-        margin-bottom: 18px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .job-card:hover {
-        border-color: #CBD5E1;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-    }
-    .job-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 10px;
-    }
-    .institution-name {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #0F172A;
-    }
-    .job-location {
-        font-size: 0.82rem;
-        color: #64748B;
-        display: flex;
-        align-items: center;
-        gap: 4px;
-    }
-    .priority-badge-alta {
-        background: #FEF2F2;
-        color: #EF4444;
-        border: 1px solid #FCA5A5;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 700;
-    }
-    .priority-badge-media {
-        background: #FFFBEB;
-        color: #D97706;
-        border: 1px solid #FCD34D;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.72rem;
-        font-weight: 700;
-    }
-    .match-radar {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: #F0FDF4;
-        border: 1px solid #BBF7D0;
-        border-radius: 10px;
-        padding: 8px 14px;
-        font-size: 0.85rem;
-        color: #15803D;
-        font-weight: 700;
-        margin-top: 10px;
-        margin-bottom: 14px;
-    }
-    .tag-chip {
-        display: inline-block;
-        background: #EFF6FF;
-        color: #1D4ED8;
-        border-radius: 6px;
-        padding: 3px 8px;
+        padding: 4px 10px;
         font-size: 0.74rem;
         font-weight: 600;
-        margin-right: 4px;
-        margin-bottom: 4px;
+        color: #1E293B;
+        margin: 2px;
+    }
+
+    /* Match Indicators */
+    .match-high {
+        background: #F0FDF4;
+        border: 1px solid #BBF7D0;
+        color: #15803D;
+    }
+    .match-med {
+        background: #FFFBEB;
+        border: 1px solid #FCD34D;
+        color: #B45309;
+    }
+    .match-low {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        color: #64748B;
+    }
+    .match-banner {
+        border-radius: 10px;
+        padding: 8px 12px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        margin-top: 8px;
+        margin-bottom: 12px;
     }
 
     /* Google Button */
@@ -228,7 +180,17 @@ st.markdown("""
         border-color: #9CA3AF;
     }
 
-    /* Security Box */
+    .tag-chip {
+        display: inline-block;
+        background: #EFF6FF;
+        color: #1D4ED8;
+        border-radius: 6px;
+        padding: 2px 7px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
     .security-banner {
         background: #F0FDF4;
         border-left: 4px solid #22C55E;
@@ -254,12 +216,12 @@ if "user_email" in query_params and st.session_state["user"] is None:
 # ----------------- Screen: Auth / Login -----------------
 if st.session_state["user"] is None:
     st.markdown("""
-    <div style='text-align: center; margin-top: 40px; margin-bottom: 24px;'>
-        <div style='font-size: 2.5rem; font-weight: 800; color: #0F172A; display: inline-flex; align-items: center; gap: 10px;'>
+    <div style='text-align: center; margin-top: 36px; margin-bottom: 20px;'>
+        <div style='font-size: 2.4rem; font-weight: 800; color: #0F172A; display: inline-flex; align-items: center; gap: 10px;'>
             🎓 DocênciaMatch
         </div>
-        <div style='font-size: 1.1rem; color: #64748B; margin-top: 6px;'>
-            Rede Inteligente de Prospecção & Candidaturas Docentes sob Medida
+        <div style='font-size: 1.05rem; color: #64748B; margin-top: 4px;'>
+            Plataforma Universal de Prospecção de Vagas e Adaptação Semântica de Currículos
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -268,13 +230,13 @@ if st.session_state["user"] is None:
     with col_main:
         with st.container(border=True):
             st.markdown("### Acessar sua Conta")
-            st.caption("Conecte-se para gerenciar vagas, currículos Lattes e disparos automatizados.")
+            st.caption("Conecte-se para buscar oportunidades compatíveis com seu currículo real.")
 
             # Google Sign-In Button
             st.markdown("""
             <div style='margin-bottom: 16px;'>
                 <a href='?user_email=pedrogouveia001@gmail.com' target='_self' style='text-decoration: none;'>
-                    <button class='google-btn' style='cursor: pointer;'>
+                    <button class='google-btn'>
                         <svg width="20" height="20" viewBox="0 0 24 24">
                             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -290,7 +252,6 @@ if st.session_state["user"] is None:
             st.divider()
 
             login_tab, reg_tab = st.tabs(["Acesso com E-mail", "Criar Conta"])
-            
             with login_tab:
                 u_in = st.text_input("E-mail ou Usuário", key="login_u")
                 p_in = st.text_input("Senha", type="password", key="login_p")
@@ -318,138 +279,192 @@ if st.session_state["user"] is None:
                             st.error(msg)
     st.stop()
 
-# ----------------- Authenticated Layout -----------------
+# ----------------- Authenticated Application -----------------
 current_user = st.session_state["user"]
 user_id = current_user["id"]
-user_profile = get_profile(user_id)
+user_profile = get_profile(user_id) or {}
 user_api = get_api_config(user_id)
 vacancies = get_user_vacancies(user_id)
 dispatches = get_user_dispatches(user_id)
 
-# Candidate Details Default
-full_name = user_profile.get("full_name", "Joyce Abreu Maia") if user_profile else "Joyce Abreu Maia"
-target_locations = user_profile.get("target_locations", "Recife/RMR, Rio Grande do Norte, Remoto EAD") if user_profile else "Recife/RMR, Rio Grande do Norte, Remoto EAD"
-phone_number = user_profile.get("phone", "(81) 99763-7186") if user_profile else "(81) 99763-7186"
-lattes_link = user_profile.get("lattes_url", "http://lattes.cnpq.br/4988358485750015") if user_profile else "http://lattes.cnpq.br/4988358485750015"
+# Candidate Defaults & Real Data
+full_name = user_profile.get("full_name") or current_user.get("username", "Candidato(a)")
+target_roles = user_profile.get("target_roles") or "Docência no Ensino Superior, Engenharia de Produção, Pesquisa Operacional"
+target_disciplines = user_profile.get("target_disciplines") or "PCP, Pesquisa Operacional, Gestão da Qualidade, Logística, Custos"
+target_locations = user_profile.get("target_locations") or "Recife/RMR, Rio Grande do Norte, Remoto EAD"
+target_modalities = user_profile.get("target_modalities") or "Presencial, Remoto / EAD, Híbrido"
+phone_number = user_profile.get("phone") or "(81) 99763-7186"
+lattes_link = user_profile.get("lattes_url") or ""
+linkedin_link = user_profile.get("linkedin_url") or ""
+
+candidate_context = {
+    "full_name": full_name,
+    "phone": phone_number,
+    "lattes_url": lattes_link,
+    "linkedin_url": linkedin_link,
+    "target_roles": target_roles,
+    "target_disciplines": target_disciplines,
+    "target_locations": target_locations,
+    "target_modalities": target_modalities,
+    "lattes_data": user_profile.get("lattes_data", {})
+}
 
 # Top Navigation Bar
 st.markdown(f"""
 <div class='top-nav'>
     <div class='brand-title'>
-        🎓 DocênciaMatch <span class='brand-badge'>TALENT NETWORK</span>
+        🎓 DocênciaMatch <span class='brand-badge'>SISTEMA UNIVERSAL</span>
     </div>
     <div style='display: flex; align-items: center; gap: 18px;'>
         <div style='font-size: 0.88rem; color: #E2E8F0;'>
-            Conectado como <strong>{current_user['email']}</strong>
+            Conectado: <strong>{current_user['email']}</strong>
         </div>
         <div style='background: #38BDF8; color: #0F172A; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;'>
-            {full_name[:1]}
+            {full_name[:1].upper()}
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# Main Navigation Tabs (Modern Clean Header)
+# Main Navigation Tabs
 nav1, nav2, nav3, nav4, nav5 = st.tabs([
-    "🏠 Feed de Vagas & Match",
-    "👤 Perfil & Lattes",
-    "🚀 Central de Disparo & Prévia",
-    "📊 Candidaturas & Histórico",
+    "🏠 Feed de Vagas & Match Dinâmico",
+    "🎯 Critérios de Vagas Buscadas",
+    "👤 Meu Currículo (Qualquer Formato)",
+    "🚀 Central de Disparos & Preview",
     "🔐 Conexões & API (Zero Senha)"
 ])
 
 # ==============================================================================
-# TAB 1: FEED DE VAGAS & MATCH (ESTILO LINKEDIN / WELLFOUND)
+# TAB 1: FEED DE VAGAS & MATCH DINÂMICO (SEM VIÉS)
 # ==============================================================================
 with nav1:
-    col_left, col_feed = st.columns([1, 2.5])
+    col_sidebar, col_feed = st.columns([1, 2.5])
     
-    # Left Column: Profile Card & Quick Stats
-    with col_left:
-        initials = "".join([n[0] for n in full_name.split()[:2]])
+    with col_sidebar:
+        # Candidate Profile Card
+        initials = "".join([n[0] for n in full_name.split()[:2]]).upper()
+        summary_short = user_profile.get("lattes_data", {}).get("summary", "")[:120]
+        if summary_short:
+            summary_short += "..."
+        else:
+            summary_short = "Perfil configurado para matching em tempo real."
+
         st.markdown(f"""
         <div class='profile-card'>
             <div class='profile-avatar'>{initials}</div>
             <div class='candidate-name'>{full_name}</div>
-            <div class='candidate-title'>Doutoranda em Engenharia de Produção (UFPE - CAPES 7)<br>Mestre em Engenharia de Produção (UFRN)</div>
+            <div class='candidate-title'>{summary_short}</div>
             <div style='margin-bottom: 12px;'>
-                <span class='stat-pill'>🎓 Ex-Docente Substituta UFERSA</span>
-                <span class='stat-pill'>📄 CNPq 4988358485750015</span>
+                <span class='stat-pill'>🎯 {target_roles.split(',')[0].strip()}</span>
             </div>
-            <hr style='border: none; border-top: 1px solid #E2E8F0; margin: 16px 0;'>
+            <hr style='border: none; border-top: 1px solid #E2E8F0; margin: 12px 0;'>
             <div style='text-align: left; font-size: 0.85rem;'>
-                <div style='display: flex; justify-content: space-between; margin-bottom: 8px;'>
-                    <span style='color: #64748B;'>Vagas Mapeadas:</span>
+                <div style='display: flex; justify-content: space-between; margin-bottom: 6px;'>
+                    <span style='color: #64748B;'>Vagas no Banco:</span>
                     <strong style='color: #0F172A;'>{len(vacancies)}</strong>
                 </div>
-                <div style='display: flex; justify-content: space-between; margin-bottom: 8px;'>
-                    <span style='color: #64748B;'>Match ATS Médio:</span>
-                    <strong style='color: #10B981;'>96%</strong>
+                <div style='display: flex; justify-content: space-between; margin-bottom: 6px;'>
+                    <span style='color: #64748B;'>Modalidades:</span>
+                    <strong style='color: #0A66C2;'>{target_modalities}</strong>
                 </div>
-                <div style='display: flex; justify-content: space-between; margin-bottom: 8px;'>
-                    <span style='color: #64748B;'>Disparos Realizados:</span>
-                    <strong style='color: #0A66C2;'>{len(dispatches)}</strong>
+                <div style='display: flex; justify-content: space-between;'>
+                    <span style='color: #64748B;'>Candidaturas Enviadas:</span>
+                    <strong style='color: #10B981;'>{len(dispatches)}</strong>
                 </div>
-            </div>
-            <div style='margin-top: 16px;'>
-                <a href='{lattes_link}' target='_blank' style='text-decoration: none;'>
-                    <button style='width: 100%; padding: 8px; background: #0A66C2; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;'>
-                        Visualizar Lattes Oficial ↗
-                    </button>
-                </a>
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Import Box
-        with st.container(border=True):
-            st.markdown("#### 📂 Importar Mais Vagas")
-            st.caption("Suba planilhas em Excel (.xlsx) ou CSV com novas oportunidades.")
-            up_file = st.file_uploader("Selecionar Arquivo", type=["xlsx", "csv"], key="feed_up")
-            if up_file and st.button("Processar Importação", use_container_width=True):
-                tmp_path = DATA_DIR / f"upload_{user_id}_{up_file.name}"
-                with open(tmp_path, "wb") as f:
-                    f.write(up_file.getbuffer())
-                count = import_vacancies_from_file(user_id, tmp_path)
+
+        # Quick Manual Registration of Vacancies
+        with st.expander("➕ Cadastrar Nova Vaga Manualmente", expanded=False):
+            st.caption("Adicione uma vaga específica que você encontrou para aplicar sob medida.")
+            nv_inst = st.text_input("Instituição / Empresa", key="nv_inst")
+            nv_title = st.text_input("Cargo / Curso", placeholder="Ex: Engenharia de Produção, Administração...", key="nv_title")
+            nv_disc = st.text_input("Disciplinas / Requisitos", placeholder="Ex: PCP, Pesquisa Operacional, Custos...", key="nv_disc")
+            nv_city = st.text_input("Cidade / Campus ou EAD", placeholder="Ex: Recife (Boa Vista), Remoto EAD...", key="nv_city")
+            nv_email = st.text_input("E-mail para Envio", placeholder="coordenacao@faculdade.edu.br", key="nv_email")
+            nv_cont = st.text_input("Nome do Coordenador / Contato", placeholder="Ex: Prof. Dr. Fulano", key="nv_cont")
+            nv_prio = st.selectbox("Prioridade", ["1 - Alta", "2 - Média", "3 - Baixa"], key="nv_prio")
+            
+            if st.button("Salvar Nova Vaga", type="primary", use_container_width=True):
+                if nv_inst and nv_email:
+                    add_vacancy(user_id, nv_inst, nv_city, nv_email, nv_cont, nv_title, nv_disc, nv_prio, "Manual")
+                    st.success("Vaga cadastrada com sucesso!")
+                    time.sleep(1)
+                    st.rerun()
+                else:
+                    st.error("Informe pelo menos a Instituição e o E-mail.")
+
+        # Batch Excel Import
+        with st.expander("📂 Importar Planilha (Excel / CSV)", expanded=False):
+            st.caption("Suba arquivos com centenas de vagas de uma vez.")
+            up_f = st.file_uploader("Arquivo de Vagas", type=["xlsx", "csv"], key="feed_up_vac")
+            if up_f and st.button("Processar Planilha", use_container_width=True):
+                tmp_p = DATA_DIR / f"upload_{user_id}_{up_f.name}"
+                with open(tmp_p, "wb") as f:
+                    f.write(up_f.getbuffer())
+                count, errs = import_vacancies_from_file(user_id, tmp_p)
                 st.success(f"{count} vagas importadas com sucesso!")
                 time.sleep(1)
                 st.rerun()
 
-    # Right Column: Feed of Vacancies
     with col_feed:
-        # Search & Filter Header
-        f_col1, f_col2, f_col3 = st.columns([2, 1, 1])
-        with f_col1:
-            search_query = st.text_input("🔍 Buscar por faculdade, cidade ou curso...", placeholder="Ex: UNICAP, Recife, Produção, EAD...")
-        with f_col2:
-            region_filter = st.selectbox("Região", ["Todas as Regiões", "Recife & RMR", "Rio Grande do Norte", "Remoto EAD"])
-        with f_col3:
-            status_filter = st.selectbox("Status", ["Todos", "A Enviar", "Enviado / Simulado"])
+        # Search & Real Filters Header
+        sf1, sf2, sf3 = st.columns([2, 1, 1])
+        with sf1:
+            search_query = st.text_input("🔍 Buscar no catálogo de vagas...", placeholder="Filtrar por instituição, palavra-chave, cidade ou disciplina...")
+        with sf2:
+            sort_by = st.selectbox("Ordenar por", ["🎯 Maior Match com Meu Currículo", "⭐ Prioridade", "Mais Recentes"])
+        with sf3:
+            filter_status = st.selectbox("Status", ["Todas", "A Enviar", "Já Enviadas / Preparadas"])
 
-        # Filter Vacancies
-        filtered_vacancies = vacancies.copy()
+        # Calculate Real Match for each vacancy
+        scored_vacancies = []
+        for vac in vacancies:
+            match_res = calculate_vacancy_match(candidate_context, vac)
+            scored_vacancies.append({
+                **vac,
+                "calculated_score": match_res["score"],
+                "match_reasons": match_res["reasons"]
+            })
+
+        # Apply Filters
+        filtered = scored_vacancies.copy()
         if search_query:
-            filtered_vacancies = [v for v in filtered_vacancies if search_query.lower() in (v['institution'] + v['campus_city'] + v['target_disciplines']).lower()]
-        if region_filter != "Todas as Regiões":
-            if "Recife" in region_filter:
-                filtered_vacancies = [v for v in filtered_vacancies if any(c in v['campus_city'].lower() for c in ["recife", "olinda", "jaboatão", "pernambuco", "pe"])]
-            elif "Rio Grande do Norte" in region_filter:
-                filtered_vacancies = [v for v in filtered_vacancies if any(c in v['campus_city'].lower() for c in ["mossoró", "natal", "rn"])]
-            elif "EAD" in region_filter:
-                filtered_vacancies = [v for v in filtered_vacancies if "ead" in (v['campus_city'] + v['source']).lower() or "nacional" in v['campus_city'].lower()]
-        if status_filter != "Todos":
-            if status_filter == "A Enviar":
-                filtered_vacancies = [v for v in filtered_vacancies if v['status'] == "A Enviar"]
-            else:
-                filtered_vacancies = [v for v in filtered_vacancies if v['status'] != "A Enviar"]
+            q = search_query.lower()
+            filtered = [v for v in filtered if q in (v['institution'] + v.get('campus_city', '') + v.get('target_disciplines', '') + v.get('job_title', '')).lower()]
+        if filter_status == "A Enviar":
+            filtered = [v for v in filtered if v.get("status") == "A Enviar"]
+        elif filter_status == "Já Enviadas / Preparadas":
+            filtered = [v for v in filtered if v.get("status") != "A Enviar"]
 
-        st.markdown(f"**Exibindo {len(filtered_vacancies)} oportunidades ativas**")
+        # Apply Sorting
+        if "Maior Match" in sort_by:
+            filtered.sort(key=lambda x: x["calculated_score"], reverse=True)
+        elif "Prioridade" in sort_by:
+            filtered.sort(key=lambda x: x.get("priority", "3 - Baixa"))
 
-        if not filtered_vacancies:
-            st.info("Nenhuma vaga encontrada com os filtros selecionados.")
+        st.markdown(f"**Exibindo {len(filtered)} vagas analisadas contra o seu currículo e critérios:**")
+
+        if not filtered:
+            st.info("Nenhuma vaga encontrada. Utilize o menu à esquerda para cadastrar ou importar novas vagas.")
         else:
-            for vac in filtered_vacancies:
-                p_class = "priority-badge-alta" if "1" in vac.get("priority", "") else "priority-badge-media"
+            for vac in filtered:
+                score = vac["calculated_score"]
+                reasons = vac["match_reasons"]
+                
+                # Dynamic visual class based on REAL score
+                if score >= 80:
+                    badge_style = "match-high"
+                    score_icon = "🟢"
+                elif score >= 60:
+                    badge_style = "match-med"
+                    score_icon = "🟡"
+                else:
+                    badge_style = "match-low"
+                    score_icon = "⚪"
+
                 with st.container(border=True):
                     h_col1, h_col2 = st.columns([3, 1])
                     with h_col1:
@@ -457,57 +472,60 @@ with nav1:
                         <div style='display: flex; align-items: center; gap: 10px;'>
                             <span style='font-size: 1.4rem;'>🏛️</span>
                             <div>
-                                <span class='institution-name'>{vac['institution']}</span>
-                                <div class='job-location'>📍 {vac['campus_city']} &nbsp;•&nbsp; 👤 Coordenação: {vac.get('contact_name') or 'Coord. Acadêmica'}</div>
+                                <span style='font-size: 1.15rem; font-weight: 700; color: #0F172A;'>{vac['institution']}</span>
+                                <div style='font-size: 0.82rem; color: #64748B;'>
+                                    📍 {vac.get('campus_city') or 'Localidade a combinar'} &nbsp;•&nbsp; 
+                                    💼 {vac.get('job_title') or 'Docência / Consultoria'} &nbsp;•&nbsp; 
+                                    👤 {vac.get('contact_name') or 'Coordenação Acadêmica'}
+                                </div>
                             </div>
                         </div>
                         """, unsafe_allow_html=True)
                     with h_col2:
-                        st.markdown(f"<div style='text-align: right;'><span class='{p_class}'>{vac['priority']}</span></div>", unsafe_allow_html=True)
-                    
-                    # Tags & Match
+                        st.markdown(f"<div style='text-align: right;'><span style='font-size: 0.74rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; background: #F1F5F9;'>{vac.get('priority', '1 - Alta')}</span></div>", unsafe_allow_html=True)
+
+                    # Disciplines Tags
                     disciplines = [d.strip() for d in vac.get('target_disciplines', '').split(';') if d.strip()]
-                    tags_html = "".join([f"<span class='tag-chip'>{d}</span>" for d in disciplines[:5]])
-                    st.markdown(f"<div style='margin-top: 8px;'>{tags_html}</div>", unsafe_allow_html=True)
-                    
-                    # ATS Match Bar
-                    st.markdown("""
-                    <div class='match-radar'>
-                        ⚡ <strong>98% Compatibilidade com Lattes</strong> — Especialização alinhada em Eng. de Produção & Pesquisa Operacional
+                    if not disciplines:
+                        disciplines = [d.strip() for d in vac.get('target_disciplines', '').split(',') if d.strip()]
+                    tags_html = "".join([f"<span class='tag-chip'>{d}</span>" for d in disciplines[:6]])
+                    if tags_html:
+                        st.markdown(f"<div style='margin-top: 6px;'>{tags_html}</div>", unsafe_allow_html=True)
+
+                    # Dynamic ATS Match Banner with Real Calculated Reasons
+                    reasons_text = " • ".join(reasons)
+                    st.markdown(f"""
+                    <div class='match-banner {badge_style}'>
+                        {score_icon} <strong>Match ATS: {score}%</strong> — {reasons_text}
                     </div>
                     """, unsafe_allow_html=True)
-                    
+
                     # Actions Row
                     btn_c1, btn_c2, btn_c3 = st.columns([1, 1, 1.2])
                     
                     with btn_c1:
-                        # Preview letter toggle
-                        show_letter = st.toggle("👁️ Ver Carta", key=f"toggle_{vac['id']}")
+                        show_letter = st.toggle("👁️ Ver Carta", key=f"tog_{vac['id']}")
                     
                     with btn_c2:
-                        # Direct PDF generation button
-                        if st.button("📄 Gerar PDF Sob Medida", key=f"pdf_{vac['id']}", use_container_width=True):
-                            with st.spinner("Compilando currículo sob medida..."):
-                                lattes_data = user_profile.get("lattes_data", {}) if user_profile else {}
-                                tailored = tailor_for_vacancy(lattes_data, vac)
-                                pdf_path = generate_tailored_pdf(tailored, vac['institution'], vac['id'])
+                        if st.button("📄 Gerar PDF Sob Medida", key=f"btn_pdf_{vac['id']}", use_container_width=True):
+                            with st.spinner("Compilando currículo sob medida para esta instituição..."):
+                                tailored = tailor_for_vacancy(candidate_context, vac)
+                                pdf_path = generate_tailored_pdf(tailored, candidate_context, vac['id'])
                                 with open(pdf_path, "rb") as f:
                                     st.download_button(
                                         label="⬇️ Baixar PDF Gerado",
                                         data=f.read(),
-                                        file_name=f"Curriculo_{full_name.replace(' ', '_')}_{vac['institution']}.pdf",
+                                        file_name=f"Curriculo_{full_name.replace(' ', '_')}_{vac['institution'][:15]}.pdf",
                                         mime="application/pdf",
                                         key=f"dl_{vac['id']}",
                                         use_container_width=True
                                     )
 
                     with btn_c3:
-                        # 1-Click Gmail Web Intent or API
-                        lattes_data = user_profile.get("lattes_data", {}) if user_profile else {}
-                        tailored = tailor_for_vacancy(lattes_data, vac)
-                        target_mail = vac['emails'].split(';')[0].split(',')[0].strip()
-                        gmail_url = generate_gmail_web_intent(target_mail, tailored['email_subject'], tailored['email_body'])
-                        
+                        # 1-Click Zero Password Dispatch (Gmail Web Intent)
+                        tailored = tailor_for_vacancy(candidate_context, vac)
+                        target_mail = vac.get('emails', '').replace(';', ',').split(',')[0].strip()
+                        gmail_url = generate_gmail_web_intent(target_mail, tailored.email_subject, tailored.email_body)
                         st.markdown(f"""
                         <a href='{gmail_url}' target='_blank' style='text-decoration: none;'>
                             <button style='width: 100%; padding: 8px; background: #22C55E; color: white; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;'>
@@ -517,124 +535,221 @@ with nav1:
                         """, unsafe_allow_html=True)
 
                     if show_letter:
-                        with st.expander("Prévia da Mensagem Personalizada para a Coordenação", expanded=True):
-                            lattes_data = user_profile.get("lattes_data", {}) if user_profile else {}
-                            tailored = tailor_for_vacancy(lattes_data, vac)
-                            st.text_input("Assunto", value=tailored['email_subject'], disabled=True)
-                            st.text_area("Corpo da Mensagem", value=tailored['email_body'], height=200, disabled=True)
+                        with st.expander("Carta de Apresentação Gerada Dinamicamente", expanded=True):
+                            tailored = tailor_for_vacancy(candidate_context, vac)
+                            st.text_input("Assunto do E-mail", value=tailored.email_subject, disabled=True)
+                            st.text_area("Mensagem Personalizada", value=tailored.email_body, height=220, disabled=True)
 
 # ==============================================================================
-# TAB 2: PERFIL & LATTES
+# TAB 2: CRITÉRIOS DE VAGAS BUSCADAS (CONFIGURAÇÃO EXPLÍCITA DE BUSCA)
 # ==============================================================================
 with nav2:
-    st.markdown("### 👤 Meu Perfil Profissional & Lattes")
-    st.caption("Configurações acadêmicas que alimentam o motor de síntese e personalização de currículos.")
+    st.markdown("### 🎯 Critérios de Vagas Buscadas & Preferências de Alvo")
+    st.caption("Especifique exatamente os tipos de vagas que você deseja para orientar o cálculo de compatibilidade (Match ATS) e o tailoring de currículos.")
 
     with st.container(border=True):
-        col_p1, col_p2 = st.columns(2)
-        with col_p1:
-            p_name = st.text_input("Nome Completo", value=full_name)
-            p_phone = st.text_input("WhatsApp / Telefone", value=phone_number)
-            p_lattes = st.text_input("Link do Lattes (CNPq)", value=lattes_link)
-        with col_p2:
-            p_linkedin = st.text_input("Link do LinkedIn (Opcional)", value=user_profile.get("linkedin_url", "") if user_profile else "")
-            p_loc = st.text_input("Regiões de Interesse", value=target_locations)
-            p_pdf = st.file_uploader("Atualizar PDF do Lattes", type=["pdf"])
+        col_crit1, col_crit2 = st.columns(2)
+        
+        with col_crit1:
+            st.markdown("#### 💼 Funções & Cargos Desejados")
+            in_target_roles = st.text_area(
+                "Cargos ou Funções Alvo (separados por vírgula)",
+                value=target_roles,
+                help="Ex: Professora de Engenharia de Produção, Docente EAD, Consultora de Processos, Coordenadora de Curso",
+                height=90
+            )
 
-        st.markdown("#### Resumo & Síntese da Carreira")
-        p_summary = st.text_area(
-            "Texto do Resumo do Lattes ou Perfil Acadêmico",
-            value=user_profile.get("lattes_data", {}).get("raw_summary", "") if user_profile else "Doutoranda em Engenharia de Produção pela UFPE (CAPES 7). Mestre em Engenharia de Produção pela UFRN. Ex-Professora Substituta da UFERSA. Ênfase em Pesquisa Operacional, Gestão da Produção e Métodos Quantitativos.",
-            height=120
-        )
+            st.markdown("#### 📚 Áreas de Atuação & Disciplinas de Domínio")
+            in_target_disciplines = st.text_area(
+                "Disciplinas / Especialidades Prioritárias",
+                value=target_disciplines,
+                help="Ex: PCP, Pesquisa Operacional, Gestão da Qualidade, Logística, Custos Industriais, Ergonomia",
+                height=90
+            )
 
-        if st.button("💾 Salvar Perfil Acadêmico", type="primary"):
-            lattes_dict = user_profile.get("lattes_data", {}) if user_profile else {}
-            if p_pdf:
-                save_pdf_path = DATA_DIR / f"lattes_{user_id}_{p_pdf.name}"
-                with open(save_pdf_path, "wb") as f:
-                    f.write(p_pdf.getbuffer())
-                extracted = extract_text_from_pdf(save_pdf_path)
-                lattes_dict = parse_lattes_text(extracted)
-                lattes_dict["pdf_saved_path"] = str(save_pdf_path)
-            
-            lattes_dict["raw_summary"] = p_summary
-            lattes_dict["name"] = p_name
-            lattes_dict["phone"] = p_phone
-            lattes_dict["lattes_url"] = p_lattes
-            lattes_dict["linkedin_url"] = p_linkedin
-            lattes_dict["target_locations"] = p_loc
+        with col_crit2:
+            st.markdown("#### 📍 Localização & Cidades de Interesse")
+            in_target_locations = st.text_area(
+                "Cidades, Estados ou Regiões Alvo",
+                value=target_locations,
+                help="Ex: Recife/RMR - PE, Mossoró - RN, Natal - RN, João Pessoa - PB, São Paulo - SP",
+                height=90
+            )
 
-            save_profile(user_id, p_name, p_phone, p_lattes, p_linkedin, p_loc, lattes_dict)
-            st.success("Perfil acadêmico salvo com sucesso!")
+            st.markdown("#### 🌐 Modalidades Aceitas")
+            in_target_modalities = st.text_input(
+                "Modalidades de Trabalho",
+                value=target_modalities,
+                help="Ex: Presencial, Remoto / EAD, Híbrido"
+            )
+
+        if st.button("💾 Salvar Critérios de Vagas Buscadas", type="primary"):
+            current_lattes = user_profile.get("lattes_data", {})
+            save_profile(
+                user_id=user_id,
+                full_name=full_name,
+                phone=phone_number,
+                lattes_url=lattes_link,
+                linkedin_url=linkedin_link,
+                target_locations=in_target_locations,
+                lattes_data=current_lattes,
+                lattes_pdf_path=user_profile.get("lattes_pdf_path", ""),
+                target_roles=in_target_roles,
+                target_disciplines=in_target_disciplines,
+                target_modalities=in_target_modalities
+            )
+            st.success("Critérios de busca salvos com sucesso! O cálculo de match de todas as vagas foi atualizado.")
             time.sleep(1)
             st.rerun()
 
 # ==============================================================================
-# TAB 3: CENTRAL DE DISPARO & PRÉVIA
+# TAB 3: MEU CURRÍCULO (IMPORTAÇÃO DE QUALQUER CURRÍCULO EM PDF OU TEXTO)
 # ==============================================================================
 with nav3:
-    st.markdown("### 🚀 Central de Disparos em Lote & Simulação")
-    st.caption("Supervisione o envio automatizado via API ou Gmail sem comprometer senhas pessoais.")
+    st.markdown("### 👤 Meu Currículo Profissional & Acadêmico")
+    st.caption("Importe QUALQUER formato de currículo (PDF corporativo, LinkedIn, Lattes ou texto livre). O motor universal extrairá suas competências e experiências automaticamente.")
+
+    col_up1, col_up2 = st.columns(2)
+    with col_up1:
+        st.markdown("#### 📄 Upload de Arquivo (Qualquer PDF)")
+        uploaded_cv = st.file_uploader("Selecione seu currículo em PDF", type=["pdf"], key="cv_pdf_universal")
+    with col_up2:
+        st.markdown("#### 🔗 Links Profissionais")
+        in_phone = st.text_input("WhatsApp / Telefone de Contato", value=phone_number)
+        in_linkedin = st.text_input("Link do LinkedIn (Opcional)", value=linkedin_link)
+        in_lattes = st.text_input("Link do Lattes CNPq (Opcional)", value=lattes_link)
+
+    st.markdown("#### 📝 Resumo Profissional / Perfil Extraído")
+    current_cv_data = user_profile.get("lattes_data", {})
+    in_summary = st.text_area(
+        "Resumo Executivo ou Cole aqui o texto do seu currículo",
+        value=current_cv_data.get("summary", "") or "Doutoranda em Engenharia de Produção pela UFPE (CAPES 7). Mestre em Engenharia de Produção pela UFRN. Ex-Professora Substituta da UFERSA.",
+        height=140
+    )
+
+    if st.button("💾 Processar e Salvar Currículo", type="primary"):
+        parsed_data = current_cv_data.copy()
+        
+        # If PDF was uploaded, parse universally
+        if uploaded_cv:
+            save_path = DATA_DIR / f"cv_{user_id}_{uploaded_cv.name}"
+            with open(save_path, "wb") as f:
+                f.write(uploaded_cv.getbuffer())
+            pdf_text = extract_text_from_pdf(save_path)
+            extracted = parse_universal_resume(pdf_text)
+            parsed_data.update(extracted)
+            parsed_data["pdf_saved_path"] = str(save_path)
+            
+            if extracted.get("full_name"):
+                full_name = extracted["full_name"]
+            if extracted.get("phone") and not in_phone:
+                in_phone = extracted["phone"]
+            if extracted.get("linkedin_url") and not in_linkedin:
+                in_linkedin = extracted["linkedin_url"]
+            if extracted.get("summary"):
+                in_summary = extracted["summary"]
+
+        parsed_data["summary"] = in_summary
+        
+        save_profile(
+            user_id=user_id,
+            full_name=full_name,
+            phone=in_phone,
+            lattes_url=in_lattes,
+            linkedin_url=in_linkedin,
+            target_locations=target_locations,
+            lattes_data=parsed_data,
+            lattes_pdf_path=parsed_data.get("pdf_saved_path", ""),
+            target_roles=target_roles,
+            target_disciplines=target_disciplines,
+            target_modalities=target_modalities
+        )
+        st.success("Currículo processado e salvo com sucesso!")
+        time.sleep(1)
+        st.rerun()
+
+    # Display extracted breakdown
+    if current_cv_data.get("degrees") or current_cv_data.get("skills"):
+        with st.expander("🔍 Detalhes Extraídos do seu Currículo (Visão do Algoritmo)", expanded=True):
+            det1, det2 = st.columns(2)
+            with det1:
+                st.markdown("**Formações & Titulações Identificadas:**")
+                for deg in current_cv_data.get("degrees", []):
+                    st.markdown(f"- **{deg.get('type')}:** {deg.get('description')}")
+            with det2:
+                st.markdown("**Competências & Palavras-Chave de Domínio:**")
+                skills = current_cv_data.get("skills", [])
+                st.write(", ".join(skills) if skills else "Nenhuma competência específica isolada.")
+
+# ==============================================================================
+# TAB 4: CENTRAL DE DISPAROS & PREVIEW
+# ==============================================================================
+with nav4:
+    st.markdown("### 🚀 Central de Disparos em Lote & Automação Supervisionada")
+    st.caption("Envie candidaturas em lote para as coordenações ou realize testes em modo de simulação.")
 
     with st.container(border=True):
-        col_s1, col_s2, col_s3 = st.columns(3)
-        with col_s1:
-            send_mode = st.radio("Modo de Execução", ["🧪 Simulação Completa (Dry-Run)", "🚀 Envio Real via API / Gmail"], index=0)
-        with col_s2:
-            sel_priority = st.multiselect("Prioridades", ["1 - Alta", "2 - Média", "3 - Baixa"], default=["1 - Alta"])
-        with col_s3:
-            limit_send = st.number_input("Limite de Vagas no Lote", min_value=1, max_value=50, value=5)
+        col_d1, col_d2, col_d3 = st.columns(3)
+        with col_d1:
+            send_mode = st.radio("Modo de Operação", ["🧪 Simulação Completa (Dry-Run)", "🚀 Envio Real via API"], index=0)
+        with col_d2:
+            min_match = st.slider("Filtrar por Match Mínimo (%)", 0, 100, 70)
+        with col_d3:
+            limit_batch = st.number_input("Tamanho do Lote", min_value=1, max_value=50, value=5)
 
-        target_batch = [v for v in vacancies if v.get("priority") in sel_priority and v.get("status") == "A Enviar"][:limit_send]
-        st.markdown(f"**Vagas prontas no lote selecionado:** `{len(target_batch)}`")
+        # Filter target batch
+        eligible_batch = []
+        for v in vacancies:
+            if v.get("status") == "A Enviar":
+                m_res = calculate_vacancy_match(candidate_context, v)
+                if m_res["score"] >= min_match:
+                    eligible_batch.append({**v, "score": m_res["score"]})
+        
+        eligible_batch.sort(key=lambda x: x["score"], reverse=True)
+        batch_to_run = eligible_batch[:limit_batch]
 
-        if target_batch:
-            if st.button("⚡ Iniciar Processamento do Lote", type="primary", use_container_width=True):
-                prog_bar = st.progress(0.0)
-                status_box = st.empty()
+        st.markdown(f"**Vagas qualificadas para o lote (Match >= {min_match}%):** `{len(batch_to_run)}`")
+
+        if batch_to_run:
+            if st.button("⚡ Iniciar Disparo do Lote Selecionado", type="primary", use_container_width=True):
+                prog = st.progress(0.0)
+                status_txt = st.empty()
                 is_dry = "Simulação" in send_mode
                 
                 success_count = 0
-                for idx, vac in enumerate(target_batch):
-                    status_box.markdown(f"Processando **{vac['institution']}** ({idx+1}/{len(target_batch)})...")
-                    lattes_data = user_profile.get("lattes_data", {}) if user_profile else {}
-                    tailored = tailor_for_vacancy(lattes_data, vac)
-                    pdf_path = generate_tailored_pdf(tailored, vac['institution'], vac['id'])
+                for idx, vac in enumerate(batch_to_run):
+                    status_txt.markdown(f"Processando **{vac['institution']}** ({idx+1}/{len(batch_to_run)})...")
+                    tailored = tailor_for_vacancy(candidate_context, vac)
+                    pdf_path = generate_tailored_pdf(tailored, candidate_context, vac['id'])
                     
                     ok, msg = send_tailored_application_email(
                         user_id=user_id,
                         vacancy_id=vac['id'],
                         institution=vac['institution'],
                         recipient_emails=vac['emails'],
-                        subject=tailored['email_subject'],
-                        body_text=tailored['email_body'],
+                        subject=tailored.email_subject,
+                        body_text=tailored.email_body,
                         pdf_attachment_path=pdf_path,
                         api_config=user_api,
                         is_dry_run=is_dry
                     )
                     if ok:
                         success_count += 1
-                    prog_bar.progress((idx + 1) / len(target_batch))
+                    prog.progress((idx + 1) / len(batch_to_run))
                     time.sleep(0.3)
 
-                status_box.success(f"Concluído! {success_count}/{len(target_batch)} candidaturas processadas com sucesso.")
+                status_txt.success(f"Concluído! {success_count}/{len(batch_to_run)} processadas.")
                 time.sleep(1)
                 st.rerun()
 
-# ==============================================================================
-# TAB 4: HISTÓRICO & AUDITORIA
-# ==============================================================================
-with nav4:
-    st.markdown("### 📊 Histórico & Auditoria de Candidaturas")
-    st.caption("Registro cronológico imutável de todas as candidaturas disparadas ou simuladas.")
-
+    # Audit Dispatches Table
+    st.markdown("#### 📋 Histórico de Disparos Registrados")
     if not dispatches:
-        st.info("Nenhum disparo registrado até o momento.")
+        st.info("Nenhum disparo registrado ainda.")
     else:
-        df_disp = pd.DataFrame(dispatches)
+        df_d = pd.DataFrame(dispatches)
         st.dataframe(
-            df_disp[["id", "institution", "recipient_email", "status", "sent_at", "subject"]],
+            df_d[["id", "institution", "recipient_email", "status", "sent_at", "subject"]],
             use_container_width=True,
             hide_index=True
         )
@@ -643,43 +758,43 @@ with nav4:
 # TAB 5: CONEXÕES & API (ZERO SENHA)
 # ==============================================================================
 with nav5:
-    st.markdown("### 🔐 Conexão de E-mail via API (Segurança Nível Bancário)")
+    st.markdown("### 🔐 Conexão de E-mail via API (Política Zero Senhas)")
     st.markdown("""
     <div class='security-banner'>
-        🛡️ <strong>Política Zero Senhas:</strong> Esta plataforma <u>NUNCA</u> solicita ou armazena a senha do seu e-mail pessoal. 
-        Você pode utilizar o modo <strong>1-Clique Gmail Web</strong> (gratuito e nativo no seu navegador) ou conectar sua chave de API transacional autorizada.
+        🛡️ <strong>Segurança em Primeiro Lugar:</strong> Esta plataforma <u>NUNCA</u> solicita, lê ou armazena a senha da sua conta de e-mail. 
+        Você pode optar por utilizar o modo <strong>1-Clique Gmail Web</strong> (direto no seu navegador sem intermediários) ou cadastrar uma <strong>Chave de API</strong> de envio transacional (Resend ou Brevo).
     </div>
     """, unsafe_allow_html=True)
 
     with st.container(border=True):
-        col_api1, col_api2 = st.columns(2)
-        with col_api1:
+        c_api1, c_api2 = st.columns(2)
+        with c_api1:
             provider_choice = st.selectbox(
-                "Método de Envio Preferido",
+                "Método de Envio",
                 ["gmail_web", "resend", "brevo"],
                 format_func=lambda x: {
-                    "gmail_web": "🌐 1-Clique Gmail Web (Nativo / Zero Senha / Sem Configuração)",
-                    "resend": "⚡ Resend API (3.000 e-mails/mês grátis via Token)",
+                    "gmail_web": "🌐 1-Clique Gmail Web (Nativo no Navegador / Sem Senha / Sem Cadastro)",
+                    "resend": "⚡ Resend API (3.000 e-mails/mês grátis via Token Bearer)",
                     "brevo": "✉️ Brevo API (300 e-mails/dia grátis via Token)"
                 }.get(x, x),
                 index=["gmail_web", "resend", "brevo"].index(user_api.get("provider", "gmail_web"))
             )
-            sender_name_in = st.text_input("Nome do Remetente", value=user_api.get("sender_name", full_name))
-        
-        with col_api2:
-            sender_email_in = st.text_input("Seu E-mail Profissional", value=user_api.get("sender_email", current_user["email"]))
-            api_key_in = ""
+            in_sender_name = st.text_input("Nome do Remetente", value=user_api.get("sender_name") or full_name)
+
+        with c_api2:
+            in_sender_email = st.text_input("Seu E-mail Profissional", value=user_api.get("sender_email") or current_user["email"])
+            in_api_key = ""
             if provider_choice in ["resend", "brevo"]:
-                api_key_in = st.text_input(
+                in_api_key = st.text_input(
                     f"Chave de API ({provider_choice.upper()})",
                     value=user_api.get("api_key", ""),
                     type="password",
-                    help="Gere gratuitamente no painel do Resend ou Brevo sem nunca expor sua senha pessoal."
+                    help="Insira apenas o token de API gerado no painel da ferramenta (não a senha do seu e-mail)."
                 )
 
-        if st.button("💾 Salvar Configurações de API", type="primary"):
-            save_api_config(user_id, provider_choice, sender_email_in, sender_name_in, api_key_in)
-            st.success("Configuração de API salva com sucesso!")
+        if st.button("💾 Salvar Configurações de Envio", type="primary"):
+            save_api_config(user_id, provider_choice, in_sender_email, in_sender_name, in_api_key)
+            st.success("Configuração de envio salva com segurança!")
             time.sleep(1)
             st.rerun()
 
@@ -687,6 +802,6 @@ with nav5:
 st.markdown("""
 <hr style='border: none; border-top: 1px solid #E2E8F0; margin-top: 40px; margin-bottom: 16px;'>
 <div style='text-align: center; font-size: 0.82rem; color: #94A3B8;'>
-    DocênciaMatch Platform • Desenvolvido para Prospecção Acadêmica de Alta Performance • 100% Custo Zero
+    DocênciaMatch Platform • Matching Semântico Sem Viés • 100% Gratuito
 </div>
 """, unsafe_allow_html=True)

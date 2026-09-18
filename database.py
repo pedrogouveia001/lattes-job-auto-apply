@@ -48,10 +48,27 @@ def init_db():
         lattes_data_json TEXT,
         linkedin_url TEXT,
         target_locations TEXT,
+        target_roles TEXT,
+        target_disciplines TEXT,
+        target_modalities TEXT,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
     """)
+
+    # Auto-migrations if existing tables lack new criteria columns
+    try:
+        c.execute("ALTER TABLE candidate_profiles ADD COLUMN target_roles TEXT")
+    except Exception:
+        pass
+    try:
+        c.execute("ALTER TABLE candidate_profiles ADD COLUMN target_disciplines TEXT")
+    except Exception:
+        pass
+    try:
+        c.execute("ALTER TABLE candidate_profiles ADD COLUMN target_modalities TEXT")
+    except Exception:
+        pass
 
     # User SMTP Configurations Table (1 per user)
     c.execute("""
@@ -214,7 +231,8 @@ def get_api_config(user_id: int):
 # ----------------- Profile Management -----------------
 
 def save_profile(user_id: int, full_name: str, phone: str, lattes_url: str,
-                 linkedin_url: str, target_locations: str, lattes_data: dict, lattes_pdf_path: str = ""):
+                 linkedin_url: str, target_locations: str, lattes_data: dict, lattes_pdf_path: str = "",
+                 target_roles: str = "", target_disciplines: str = "", target_modalities: str = ""):
     conn = get_connection()
     c = conn.cursor()
     lattes_json = json.dumps(lattes_data, ensure_ascii=False)
@@ -224,15 +242,16 @@ def save_profile(user_id: int, full_name: str, phone: str, lattes_url: str,
         c.execute("""
             UPDATE candidate_profiles 
             SET full_name = ?, phone = ?, lattes_url = ?, linkedin_url = ?, 
-                target_locations = ?, lattes_data_json = ?, lattes_pdf_path = ?, updated_at = CURRENT_TIMESTAMP
+                target_locations = ?, target_roles = ?, target_disciplines = ?, target_modalities = ?,
+                lattes_data_json = ?, lattes_pdf_path = ?, updated_at = CURRENT_TIMESTAMP
             WHERE user_id = ?
-        """, (full_name, phone, lattes_url, linkedin_url, target_locations, lattes_json, lattes_pdf_path, user_id))
+        """, (full_name, phone, lattes_url, linkedin_url, target_locations, target_roles, target_disciplines, target_modalities, lattes_json, lattes_pdf_path, user_id))
     else:
         c.execute("""
             INSERT INTO candidate_profiles 
-            (user_id, full_name, phone, lattes_url, linkedin_url, target_locations, lattes_data_json, lattes_pdf_path)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (user_id, full_name, phone, lattes_url, linkedin_url, target_locations, lattes_json, lattes_pdf_path))
+            (user_id, full_name, phone, lattes_url, linkedin_url, target_locations, target_roles, target_disciplines, target_modalities, lattes_data_json, lattes_pdf_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (user_id, full_name, phone, lattes_url, linkedin_url, target_locations, target_roles, target_disciplines, target_modalities, lattes_json, lattes_pdf_path))
     conn.commit()
     conn.close()
 
