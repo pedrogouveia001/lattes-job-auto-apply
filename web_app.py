@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-DocênciaMatch / LattesJobAutoApply — Universal Talent & Job Platform.
+OmniMatch AI — Universal Talent & Job Platform.
 - Dynamic Semantic Matching (Unbiased, driven by Candidate Resume & Target Search Criteria)
 - Universal Resume Parser (Supports ANY PDF or Text resume: Corporate, Academic, Tech)
 - Explicit Job Search Criteria Configuration (Cargos, Áreas, Modalidades, Cidades)
@@ -14,6 +14,7 @@ import pandas as pd
 import json
 import time
 import urllib.parse
+import base64
 from pathlib import Path
 
 # Local imports
@@ -31,9 +32,18 @@ from pdf_engine import generate_tailored_pdf
 from email_engine import send_tailored_application_email, generate_gmail_web_intent
 from vacancy_service import import_vacancies_from_file
 
+def get_logo_base64() -> str:
+    logo_file = BASE_DIR / "assets" / "logo.png"
+    if logo_file.exists():
+        with open(logo_file, "rb") as f:
+            return base64.b64encode(f.read()).decode("utf-8")
+    return ""
+
+LOGO_B64 = get_logo_base64()
+
 st.set_page_config(
-    page_title="DocênciaMatch — Plataforma Inteligente de Vagas & Currículos",
-    page_icon="🎓",
+    page_title="OmniMatch AI — Plataforma Inteligente de Vagas & Currículos",
+    page_icon=str(BASE_DIR / "assets" / "logo.png") if (BASE_DIR / "assets" / "logo.png").exists() else "⚡",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -215,13 +225,16 @@ if "user_email" in query_params and st.session_state["user"] is None:
 
 # ----------------- Screen: Auth / Login -----------------
 if st.session_state["user"] is None:
-    st.markdown("""
-    <div style='text-align: center; margin-top: 36px; margin-bottom: 20px;'>
-        <div style='font-size: 2.4rem; font-weight: 800; color: #0F172A; display: inline-flex; align-items: center; gap: 10px;'>
-            🎓 DocênciaMatch
+    logo_img_html = f"<img src='data:image/png;base64,{LOGO_B64}' style='width: 72px; height: 72px; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 4px 20px rgba(56, 189, 248, 0.35);'>" if LOGO_B64 else "<span style='font-size: 2.8rem;'>⚡</span>"
+
+    st.markdown(f"""
+    <div style='text-align: center; margin-top: 24px; margin-bottom: 20px;'>
+        {logo_img_html}
+        <div style='font-size: 2.4rem; font-weight: 800; background: linear-gradient(90deg, #38BDF8, #818CF8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+            OmniMatch AI
         </div>
         <div style='font-size: 1.05rem; color: #64748B; margin-top: 4px;'>
-            Plataforma Universal de Prospecção de Vagas e Adaptação Semântica de Currículos
+            Plataforma Universal de Prospecção de Vagas, Tailoring de Currículos & Disparos
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -309,11 +322,16 @@ candidate_context = {
     "lattes_data": user_profile.get("lattes_data", {})
 }
 
-# Top Navigation Bar
+# Top Navigation Bar with Logo
+nav_logo_html = f"<img src='data:image/png;base64,{LOGO_B64}' style='width: 38px; height: 38px; border-radius: 9px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);'>" if LOGO_B64 else "⚡"
+
 st.markdown(f"""
 <div class='top-nav'>
-    <div class='brand-title'>
-        🎓 DocênciaMatch <span class='brand-badge'>SISTEMA UNIVERSAL</span>
+    <div style='display: flex; align-items: center; gap: 12px;'>
+        {nav_logo_html}
+        <div class='brand-title'>
+            OmniMatch AI <span class='brand-badge'>TALENT & JOB MATCHER</span>
+        </div>
     </div>
     <div style='display: flex; align-items: center; gap: 18px;'>
         <div style='font-size: 0.88rem; color: #E2E8F0;'>
@@ -883,6 +901,6 @@ with nav5:
 st.markdown("""
 <hr style='border: none; border-top: 1px solid #E2E8F0; margin-top: 40px; margin-bottom: 16px;'>
 <div style='text-align: center; font-size: 0.82rem; color: #94A3B8;'>
-    DocênciaMatch Platform • Matching Semântico Sem Viés • 100% Gratuito
+    OmniMatch AI Platform • Matching Semântico Sem Viés • 100% Gratuito
 </div>
 """, unsafe_allow_html=True)
