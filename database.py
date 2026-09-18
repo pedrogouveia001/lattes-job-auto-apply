@@ -192,6 +192,25 @@ def get_or_create_google_user(email: str, name: str = ""):
     conn.close()
     return dict(user)
 
+def update_user_password(username_or_email: str, new_password: str) -> tuple[bool, str]:
+    """Updates or sets the password for an existing user account."""
+    conn = get_connection()
+    c = conn.cursor()
+    target = username_or_email.strip().lower()
+    user = c.execute("SELECT id FROM users WHERE username = ? OR email = ?", (target, target)).fetchone()
+    if not user:
+        conn.close()
+        return False, "Usuário ou e-mail não encontrado no sistema."
+    
+    if len(new_password.strip()) < 4:
+        conn.close()
+        return False, "A nova senha deve ter pelo menos 4 caracteres."
+        
+    c.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(new_password), user["id"]))
+    conn.commit()
+    conn.close()
+    return True, "Senha atualizada com sucesso! Você já pode acessar sua conta."
+
 # ----------------- Zero-Password Email API Management -----------------
 
 def save_api_config(user_id: int, provider: str, sender_email: str, sender_name: str, api_key: str = ""):
