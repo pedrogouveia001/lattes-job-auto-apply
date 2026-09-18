@@ -31,6 +31,7 @@ from tailor_engine import tailor_for_vacancy, calculate_vacancy_match
 from pdf_engine import generate_tailored_pdf
 from email_engine import send_tailored_application_email, generate_gmail_web_intent
 from vacancy_service import import_vacancies_from_file
+from job_search_engine import search_market_vacancies, seed_default_vacancies_if_empty
 
 def get_logo_base64() -> str:
     logo_file = BASE_DIR / "assets" / "logo.png"
@@ -336,6 +337,9 @@ user_id = current_user["id"]
 user_profile = get_profile(user_id) or {}
 user_api = get_api_config(user_id)
 vacancies = get_user_vacancies(user_id)
+if len(vacancies) == 0:
+    seed_default_vacancies_if_empty(user_id)
+    vacancies = get_user_vacancies(user_id)
 dispatches = get_user_dispatches(user_id)
 
 # Candidate Defaults & Real Data (Zero Hardcoded Bias)
@@ -482,17 +486,17 @@ with nav1:
                 st.rerun()
 
     with col_feed:
-        # Dedicated interactive card for filling sought jobs (Campo de Preenchimento das Vagas Buscadas)
+        # Dedicated interactive card for active job search and criteria filling
         with st.container(border=True):
-            st.markdown("#### 🎯 Preenchimento das Vagas Buscadas (Alvo Ativo)")
-            st.caption("Digite os cargos e localidades que você está buscando. O Match ATS de todas as vagas é recalculado imediatamente.")
+            st.markdown("#### 🎯 Busca Ativa de Vagas no Mercado & Critérios Alvo")
+            st.caption("Digite os cargos e localidades desejadas. Ao clicar em 'Buscar Novas Vagas no Mercado', o OmniMatch varre ativamente oportunidades reais (APIs, ecossistema corporativo, universidades e vagas remotas), adiciona ao seu banco e recalcula o Match ATS com seu currículo.")
             
-            cp1, cp2, cp3 = st.columns([2.5, 1.8, 1])
+            cp1, cp2 = st.columns([2.5, 2])
             with cp1:
                 live_roles = st.text_input(
                     "💼 Cargos / Funções Buscadas",
                     value=target_roles,
-                    placeholder="Ex: Docência, Engenharia de Software, Administração, Direito...",
+                    placeholder="Ex: Engenharia de Software, Docência, Dados, Direito...",
                     key="live_roles_input"
                 )
             with cp2:
@@ -502,10 +506,20 @@ with nav1:
                     placeholder="Ex: Recife, São Paulo, Remoto, EAD...",
                     key="live_loc_input"
                 )
-            with cp3:
-                st.write("")
-                st.write("")
-                if st.button("💾 Fixar na Conta", help="Salva estes termos no seu perfil para buscas futuras", use_container_width=True):
+            
+            b_col1, b_col2, b_col3 = st.columns([2.2, 1.4, 1.4])
+            with b_col1:
+                if st.button("🔍 Buscar Novas Vagas no Mercado", type="primary", use_container_width=True, help="Varre o mercado e APIs para localizar vagas correspondentes"):
+                    with st.spinner(f"Varrendo vagas no mercado para '{live_roles or 'Todas'}' em '{live_loc or 'Brasil / Remoto'}'..."):
+                        new_found, _ = search_market_vacancies(user_id, live_roles, live_loc, fetch_online=True)
+                        if new_found > 0:
+                            st.success(f"🎯 {new_found} novas vagas encontradas e adicionadas ao seu feed!")
+                        else:
+                            st.info("Varredura realizada! As vagas compatíveis encontradas já constam no seu banco.")
+                        time.sleep(0.8)
+                        st.rerun()
+            with b_col2:
+                if st.button("💾 Fixar no Perfil", use_container_width=True, help="Salva estes termos no seu perfil para buscas futuras"):
                     save_profile(
                         user_id=user_id,
                         full_name=full_name,
@@ -519,9 +533,16 @@ with nav1:
                         target_disciplines=target_disciplines,
                         target_modalities=target_modalities
                     )
-                    st.toast("Critérios de vagas buscadas salvos no seu perfil!", icon="✅")
-                    time.sleep(0.5)
+                    st.toast("Critérios salvos no seu perfil!", icon="✅")
+                    time.sleep(0.4)
                     st.rerun()
+            with b_col3:
+                if st.button("⚡ Sincronizar Catálogo", use_container_width=True, help="Carrega vagas curadas de instituições e empresas"):
+                    with st.spinner("Sincronizando catálogo completo de oportunidades..."):
+                        s_cnt, _ = search_market_vacancies(user_id, "", "", fetch_online=False)
+                        st.success(f"{s_cnt} vagas sincronizadas!")
+                        time.sleep(0.8)
+                        st.rerun()
 
         # Dynamic context incorporating live target roles/locations
         active_candidate_context = {
@@ -569,7 +590,13 @@ with nav1:
         st.markdown(f"**Exibindo {len(filtered)} vagas analisadas contra o seu currículo e critérios:**")
 
         if not filtered:
-            st.info("Nenhuma vaga encontrada. Utilize o menu à esquerda para cadastrar ou importar novas vagas.")
+            st.info("Nenhuma vaga encontrada para os termos e filtros atuais.")
+            if st.button("🚀 Executar Busca Imediata no Mercado para '" + (live_roles or "Oportunidades em Aberto") + "'", type="primary", use_container_width=True):
+                with st.spinner("Buscando oportunidades no mercado..."):
+                    new_cnt, _ = search_market_vacancies(user_id, live_roles, live_loc, fetch_online=True)
+                    st.success(f"{new_cnt} vagas localizadas e adicionadas!")
+                    time.sleep(0.8)
+                    st.rerun()
         else:
             for vac in filtered:
                 score = vac["calculated_score"]

@@ -1,0 +1,512 @@
+[
+  {
+    "institution": "UNICAP (Universidade Católica)",
+    "campus_city": "Recife (Boa Vista)",
+    "emails": "mario.junior@unicap.br\nassecom@unicap.br",
+    "contact_name": "Prof. Dr. Mário Gomes da Silva Júnior (Coord. Eng. Produção & Civil) / Ramal 4305",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "UNINASSAU / Ser Educacional",
+    "campus_city": "Recife (Graças, Caxangá, Boa Viagem), Olinda, Jaboatão, Cabo",
+    "emails": "coordenacao.gracas@uninassau.edu.br\nselecao.docente@sereducacional.com",
+    "contact_name": "Coordenação de Engenharias Recife / Triagem Central Ser Educacional",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "Faculdade Senac PE",
+    "campus_city": "Recife (Santo Amaro / Porto Digital)",
+    "emails": "selecao@faculdadesenacpe.edu.br\nsecretariafac@pe.senac.br",
+    "contact_name": "Seleção Docente oficial para CST em Logística e Gestão da Produção",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "Faculdade ESUDA",
+    "campus_city": "Recife (Santo Amaro)",
+    "emails": "direpe@esuda.edu.br\nqueroseraluno@esuda.edu.br",
+    "contact_name": "Edital DIREPE nº 11/2026 ativo para Quadro Suplementar Docente",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "Faculdade Nova Roma (FGV)",
+    "campus_city": "Recife (Bongi / Afogados)",
+    "emails": "contato@novaroma.edu.br\nfaleconosco@novaroma.edu.br",
+    "contact_name": "Banco de Talentos específico para Docente de Ensino Superior e Pós-Graduação",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "Faculdade SENAI PE / FIEPE",
+    "campus_city": "Recife (Santo Amaro, Areias), Cabo, Paulista",
+    "emails": "contato@sistemafiepe.org.br\nsenai.aprendiz@sistemafiepe.org.br",
+    "contact_name": "Instrutoria e Docência Superior em SST, Gestão da Produção e Logística",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "UniFBV / Wyden (Grupo Yduqs)",
+    "campus_city": "Recife (Imbiribeira)",
+    "emails": "atendimento@wyden.com.br",
+    "contact_name": "Campus Imbiribeira / Cursos de Engenharia e Gestão / Triagem Selpe e Yduqs",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "Estácio Recife (Grupo Yduqs)",
+    "campus_city": "Recife (Abdias de Carvalho, Madalena, Boa Viagem)",
+    "emails": "atendimento.recife@estacio.br",
+    "contact_name": "Campus Abdias de Carvalho é o polo de Engenharias da Estácio no Recife",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "UNIFG (Ânima Educação)",
+    "campus_city": "Jaboatão (Piedade) e Recife (Boa Vista)",
+    "emails": "carreiras@unifg.edu.br",
+    "contact_name": "Setor de Carreiras e Relações Corporativas Ânima",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "FPS (Faculdade Pernambucana de Saúde)",
+    "campus_city": "Recife (Imbiribeira)",
+    "emails": "contato@fps.edu.br\nmarketing@fps.edu.br",
+    "contact_name": "Foco em Gestão e Otimização de Processos em Saúde (projeto UNICAT)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "UNIFAFIRE (Centro Univ. Frassinetti)",
+    "campus_city": "Recife (Boa Vista)",
+    "emails": "posgraduacao@unifafire.edu.br",
+    "contact_name": "Coordenação de Pós-Graduação e Extensão",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "FITS / UNIT (Grupo Tiradentes)",
+    "campus_city": "Jaboatão (Piedade) e Goiana (Polo Automotivo)",
+    "emails": "copex_goiana@pe.fits.edu.br\nmatriculasonlinegoiana@pe.fits.edu.br",
+    "contact_name": "NAPPs / Saber-Fazer Docente / Seleções Docentes Grupo Tiradentes",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "FOCCA (Faculdade de Olinda)",
+    "campus_city": "Olinda (Carmo / Bairro Novo)",
+    "emails": "posgraduacao@focca.com.br",
+    "contact_name": "Coordenação Acadêmica e Pós-Graduação",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "3 - Baixa",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "UNIBRA (Centro Universitário Brasileiro)",
+    "campus_city": "Recife (Boa Vista)",
+    "emails": "ouvidoria@grupounibra.com\nouvidoria.atendimento@grupounibra.com",
+    "contact_name": "Atendimento Geral / Secretaria Acadêmica Central",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "3 - Baixa",
+    "source": "Curadoria OmniMatch Acadêmico (Recife e RMR (PE))"
+  },
+  {
+    "institution": "Vitru Educação (UniCesumar & Uniasselvi)",
+    "campus_city": "Maior rede EAD do Brasil (Nota 5 MEC). Grande polo de Engenharia de Produção e Gestão.",
+    "emails": "atendimento.rh@unicesumar.edu.br\n(Filtrar por 'Professor Mediador' ou 'Autor' na Gupy)",
+    "contact_name": "atendimento.rh@unicesumar.edu.br\n(Filtrar por 'Professor Mediador' ou 'Autor' na Gupy)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Cogna Educação (Kroton / Anhanguera)",
+    "campus_city": "Líder nacional em escala EAD. Demanda contínua de livros e videoaulas.",
+    "emails": "recrutamento@cogna.com.br\n(Verificar vagas da editora Saber Educação na Gupy)",
+    "contact_name": "recrutamento@cogna.com.br\n(Verificar vagas da editora Saber Educação na Gupy)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Grupo Yduqs (Estácio EAD & Wyden Digital)",
+    "campus_city": "Pioneira em EAD com estúdios e catálogo nacional de Engenharias e Gestão.",
+    "emails": "atendimento.docente@estacio.br\n(Buscar por 'Conteudista' na Gupy Yduqs)",
+    "contact_name": "atendimento.docente@estacio.br\n(Buscar por 'Conteudista' na Gupy Yduqs)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Grupo Ser Educacional (UNINASSAU Digital)",
+    "campus_city": "Sede e estúdios centrais de gravação em Recife/PE. Produção própria.",
+    "emails": "selecao.docente@sereducacional.com\n(Mencionar facilidade para estúdio no Recife)",
+    "contact_name": "selecao.docente@sereducacional.com\n(Mencionar facilidade para estúdio no Recife)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Ânima Educação (EAD Ânima / Ulife)",
+    "campus_city": "Ecossistema integrado com currículo por Unidades Curriculares.",
+    "emails": "contato@animaeducacao.com.br\n(Filtrar por 'EaD' ou 'Digital' na Gupy Ânima)",
+    "contact_name": "contato@animaeducacao.com.br\n(Filtrar por 'EaD' ou 'Digital' na Gupy Ânima)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "PUC Minas Virtual",
+    "campus_city": "Referência e prestígio acadêmico em pós-graduação e graduação EAD.",
+    "emails": "virtual@pucminas.br\n(Editais semestrais de Seleção Externa Docente)",
+    "contact_name": "virtual@pucminas.br\n(Editais semestrais de Seleção Externa Docente)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Cruzeiro do Sul Virtual",
+    "campus_city": "Plataformas digitais e laboratórios virtuais de ponta em engenharia.",
+    "emails": "selecaodocente@cruzeirodosul.edu.br\n(Editais nacionais semestrais abertos)",
+    "contact_name": "selecaodocente@cruzeirodosul.edu.br\n(Editais nacionais semestrais abertos)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "UNINTER (Centro Univ. Internacional)",
+    "campus_city": "Pioneira em kits práticos individuais de engenharia e forte catálogo EAD.",
+    "emails": "rh@uninter.com\n(Inscrição no banco oficial do portal Uninter)",
+    "contact_name": "rh@uninter.com\n(Inscrição no banco oficial do portal Uninter)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Faculdade Descomplica",
+    "campus_city": "EdTech 100% digital, linguagem jovem, microlearning e metodologias ativas.",
+    "emails": "contato@descomplica.com.br\n(Perfil comunicativo, metodologias ativas)",
+    "contact_name": "contato@descomplica.com.br\n(Perfil comunicativo, metodologias ativas)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Gran Faculdade (Gran Tecnologia)",
+    "campus_city": "Expansão acelerada em graduação e pós EAD com tecnologia de ponta.",
+    "emails": "faculdade@grancursosonline.com.br\n(Banco de talentos docente sempre ativo)",
+    "contact_name": "faculdade@grancursosonline.com.br\n(Banco de talentos docente sempre ativo)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "Senac EAD (Rede Nacional)",
+    "campus_city": "Cursos Superiores de Tecnologia e Pós EAD em Logística e Gestão.",
+    "emails": "faleconosco@ead.senac.br\n(Editais de seleção pública para EAD)",
+    "contact_name": "faleconosco@ead.senac.br\n(Editais de seleção pública para EAD)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "FIA Online / FIAP Online",
+    "campus_city": "Escolas de negócios de ponta com MBAs executivos e pós-graduações remotas.",
+    "emails": "faleconosco@fia.com.br\ncontato@fiap.com.br",
+    "contact_name": "faleconosco@fia.com.br\ncontato@fiap.com.br",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Remotas e EAD (Nacional))"
+  },
+  {
+    "institution": "UnP Mossoró (Universidade Potiguar)",
+    "campus_city": "Mossoró (Nova Betânia)",
+    "emails": "carreiras@unp.br\ncontato@animaeducacao.com.br",
+    "contact_name": "Campus Nova Betânia (Av. João da Escóssia) / Cursos de Engenharia e Gestão",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "UniCatólica do RN (Ex-Diocesana)",
+    "campus_city": "Mossoró (Santo Antônio)",
+    "emails": "atendimento@catolicadorn.com.br\ndiretoria@catolicadorn.com.br",
+    "contact_name": "Coordenação de Cursos / Seção Editais e RH / Métodos Quantitativos e Projetos",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "FACENE Mossoró (Nova Esperança)",
+    "campus_city": "Mossoró (Alto de São Manoel)",
+    "emails": "comunicacao@facenemossoro.com.br\nsecretaria@facenemossoro.com.br",
+    "contact_name": "Editais regulares de Seleção Docente / Envio de Planos de Aula e Lattes",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "SENAI Mossoró (CT Ítalo Bologna)",
+    "campus_city": "Mossoró (Abolição I)",
+    "emails": "senai-mossoro@rn.senai.br\ncontato@fiern.org.br",
+    "contact_name": "Foco em Petróleo & Gás, Automação, SST e Gestão Industrial (Joyce é técnica IFRN)",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "UNIFACEX (Centro Universitário)",
+    "campus_city": "Natal (Capim Macio)",
+    "emails": "selecaodocente@unifacex.com.br\ntrabalheconosco@facex.com.br",
+    "contact_name": "E-mail direto permanente para recebimento de currículos docentes",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "UNI-RN (Centro Univ. do RN - FARN)",
+    "campus_city": "Natal (Tirol)",
+    "emails": "rh@unirn.edu.br",
+    "contact_name": "Contato direto com RH: (84) 3215-2944 / Editais semestrais em unirn.edu.br/editais",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "UnP Natal (Polo Salgado Filho/Roberto Freire)",
+    "campus_city": "Natal (Polo Central)",
+    "emails": "carreiras@unp.br\ncontato@animaeducacao.com.br",
+    "contact_name": "Polo Central Salgado Filho e Roberto Freire / Cursos de Engenharia e Gestão",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "UNINASSAU Natal (Ser Educacional)",
+    "campus_city": "Natal (Capim Macio e Zona Norte)",
+    "emails": "selecao.docente@sereducacional.com\ncoordenacao.natal@uninassau.edu.br",
+    "contact_name": "Cursos de Engenharia, Logística e Gestão / Triagem Ser Educacional",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "SENAI RN / CTGAS-ER",
+    "campus_city": "Natal (Lagoa Nova)",
+    "emails": "ctgas@rn.senai.br\ncontato@fiern.org.br",
+    "contact_name": "Hub de Tecnologias do Gás, Eólica, Solar, Hidrogênio Verde e SST",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "1 - Alta",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "SEST SENAT Mossoró",
+    "campus_city": "Mossoró (Rincão)",
+    "emails": "mossoro.rn@sestsenat.org.br",
+    "contact_name": "Instrutoria em Logística, Cadeia de Suprimentos, Transporte e SST",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "FACEP (Faculdade Evolução)",
+    "campus_city": "Pau dos Ferros (Oeste Potiguar)",
+    "emails": "eduevolucao.faculdade@gmail.com",
+    "contact_name": "Coordenação Acadêmica / Polo regional do Alto Oeste Potiguar",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "Estácio Natal (Romualdo Galvão / Ponta Negra)",
+    "campus_city": "Natal (Tirol / Ponta Negra)",
+    "emails": "atendimento.natal@estacio.br",
+    "contact_name": "Coordenação de Ensino e Atendimento Docente",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "2 - Média",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "FANEC (Faculdade de Natal)",
+    "campus_city": "Natal (Petrópolis / Alecrim)",
+    "emails": "atendimento.pos@fanec.edu.br",
+    "contact_name": "Setor de Pós-Graduação e Coordenação Acadêmica",
+    "job_title": "Docência no Ensino Superior / Pesquisa",
+    "target_disciplines": "Direito, Inteligência Artificial, Ciência da Computação, Administração, Engenharia",
+    "priority": "3 - Baixa",
+    "source": "Curadoria OmniMatch Acadêmico (Rio Grande do Norte (RN))"
+  },
+  {
+    "institution": "CESAR - Centro de Estudos e Sistemas Avançados do Recife",
+    "campus_city": "Recife (Bairro do Recife / Porto Digital) & Remoto",
+    "emails": "talentos@cesar.org.br",
+    "contact_name": "Time de Talent Acquisition / RH Tech",
+    "job_title": "Engenheiro(a) de Software / Cientista de Dados",
+    "target_disciplines": "Python, TypeScript, Machine Learning, Cloud Architecture, Microservices",
+    "priority": "1 - Alta",
+    "source": "Porto Digital & Tech Hubs"
+  },
+  {
+    "institution": "Porto Digital / Empresas Embarcadas",
+    "campus_city": "Recife (PE)",
+    "emails": "rh@portodigital.org",
+    "contact_name": "Banco de Talentos Porto Digital",
+    "job_title": "Desenvolvedor(a) Full Stack / Arquiteto de Soluções",
+    "target_disciplines": "Python, React, Node.js, Bancos de Dados SQL/NoSQL, APIs REST",
+    "priority": "1 - Alta",
+    "source": "Porto Digital & Tech Hubs"
+  },
+  {
+    "institution": "Nubank",
+    "campus_city": "São Paulo & Remoto (Brasil)",
+    "emails": "careers@nubank.com.br",
+    "contact_name": "Recrutamento Tech & Product",
+    "job_title": "Software Engineer / Tech Lead / Data Scientist",
+    "target_disciplines": "Sistemas Distribuídos, Clojure, Python, Engenharia de Dados, FinTech",
+    "priority": "1 - Alta",
+    "source": "Ecossistema Tech Nacional"
+  },
+  {
+    "institution": "Stone Co.",
+    "campus_city": "Rio de Janeiro, São Paulo & Remoto",
+    "emails": "rh@stone.com.br",
+    "contact_name": "Equipe de Pessoas & Cultura",
+    "job_title": "Engenheiro de Software Backend / Dados",
+    "target_disciplines": "Python, .NET, Go, Microsserviços, Alta Escalabilidade",
+    "priority": "1 - Alta",
+    "source": "Ecossistema Tech Nacional"
+  },
+  {
+    "institution": "iFood",
+    "campus_city": "Osasco (SP) & Remoto (Brasil)",
+    "emails": "talent.acquisition@ifood.com.br",
+    "contact_name": "Recrutamento iFood Tech",
+    "job_title": "Senior Software Engineer / Machine Learning Specialist",
+    "target_disciplines": "Java, Python, Kubernetes, AWS, Inteligência Artificial Aplicada",
+    "priority": "1 - Alta",
+    "source": "Ecossistema Tech Nacional"
+  },
+  {
+    "institution": "Mercado Livre Brasil",
+    "campus_city": "São Paulo (Melicidade) & Remoto",
+    "emails": "jobs-brasil@mercadolivre.com",
+    "contact_name": "Meli Talent Team",
+    "job_title": "Desenvolvedor(a) de Software / Especialista em IA",
+    "target_disciplines": "Go, Java, Big Data, Sistemas de Recomendação, E-commerce",
+    "priority": "1 - Alta",
+    "source": "Ecossistema Tech Nacional"
+  },
+  {
+    "institution": "CI&T",
+    "campus_city": "Campinas, Recife & Remoto",
+    "emails": "recrutamento@ciandt.com",
+    "contact_name": "CI&T People & Performance",
+    "job_title": "Consultor(a) de Tecnologia / Engenheiro de Software",
+    "target_disciplines": "React, Python, Java, Transformação Digital, Agile",
+    "priority": "1 - Alta",
+    "source": "Ecossistema Tech Nacional"
+  },
+  {
+    "institution": "TOTVS",
+    "campus_city": "São Paulo & Remoto",
+    "emails": "carreiras@totvs.com.br",
+    "contact_name": "Atração de Talentos TOTVS",
+    "job_title": "Analista Desenvolvedor / Especialista de Produto",
+    "target_disciplines": "ERP, Soluções Corporativas, Java, TypeScript, Cloud",
+    "priority": "2 - Média",
+    "source": "Ecossistema Tech Nacional"
+  },
+  {
+    "institution": "Inmetrics / Zup Innovation",
+    "campus_city": "Uberlândia, São Paulo & Remoto",
+    "emails": "carreiras@zup.com.br",
+    "contact_name": "Tech Talent Recruiter",
+    "job_title": "Software Engineer (Stack Open Source & Cloud)",
+    "target_disciplines": "DevOps, CI/CD, Kotlin, Python, Segurança e Governança",
+    "priority": "1 - Alta",
+    "source": "Ecossistema Tech Nacional"
+  },
+  {
+    "institution": "CESAR School",
+    "campus_city": "Recife (Bairro do Recife)",
+    "emails": "coordenacao@cesar.school",
+    "contact_name": "Coordenação Acadêmica de Graduação e Pós",
+    "job_title": "Professor(a) / Instrutor(a) de Engenharia de Software e IA",
+    "target_disciplines": "Engenharia de Software, Design Thinking, Ciência de Dados, Computação",
+    "priority": "1 - Alta",
+    "source": "Porto Digital & Ensino Inovador"
+  },
+  {
+    "institution": "Vitasoft / Neurotech",
+    "campus_city": "Recife (Porto Digital) & Híbrido",
+    "emails": "vagas@neurotech.com.br",
+    "contact_name": "RH Neurotech (B3 Company)",
+    "job_title": "Engenheiro(a) de IA & Machine Learning",
+    "target_disciplines": "Machine Learning, Analytics, Modelagem Preditiva, Python, MLOps",
+    "priority": "1 - Alta",
+    "source": "Porto Digital & Tech Hubs"
+  },
+  {
+    "institution": "Thoughtworks Brasil",
+    "campus_city": "Recife, São Paulo, Porto Alegre & Remoto",
+    "emails": "recruiting-brazil@thoughtworks.com",
+    "contact_name": "Talent Operations",
+    "job_title": "Consultant Developer / Tech Lead",
+    "target_disciplines": "TDD, Clean Code, Agile, Python, Java, Micro frontends",
+    "priority": "1 - Alta",
+    "source": "Ecossistema Tech Nacional"
+  }
+]
