@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 """
-End-to-end integration test for LattesJobAutoApply.
-Tests user creation, profile storage, vacancy import from Excel,
-dynamic tailoring, PDF resume generation, and dry-run email dispatch.
+End-to-end integration test for DocênciaMatch / LattesJobAutoApply.
+Tests user creation, Google OAuth user handling, profile storage, vacancy import,
+dynamic tailoring, PDF resume generation, and zero-password email dispatch.
 """
 
 from pathlib import Path
 from database import (
-    register_user, authenticate_user,
+    register_user, authenticate_user, get_or_create_google_user,
     save_profile, get_profile,
-    save_smtp_config, get_smtp_config,
+    save_api_config, get_api_config,
     get_user_vacancies, get_user_dispatches
 )
 from tailor_engine import tailor_for_vacancy
 from pdf_engine import generate_tailored_pdf
-from email_engine import send_tailored_application_email
+from email_engine import send_tailored_application_email, generate_gmail_web_intent
 from vacancy_service import import_vacancies_from_file
 
 def run_tests():
@@ -27,67 +27,62 @@ def run_tests():
 
     user_id = user["id"]
 
-    print("\n=== TEST 2: Candidate Profile Management ===")
+    print("\n=== TEST 2: Google OAuth User Handling ===")
+    google_user = get_or_create_google_user("pedrogouveia001@gmail.com", "Pedro Gouveia")
+    assert google_user is not None, "Google OAuth user creation failed!"
+    assert google_user["email"] == "pedrogouveia001@gmail.com"
+    print("Google OAuth User verified:", google_user["username"], "ID:", google_user["id"])
+
+    print("\n=== TEST 3: Candidate Profile Management ===")
     profile_data = {
         "summary": "Engenheira de Produção com sólida atuação na docência do ensino superior, Doutoranda UFPE (CAPES 7) e Mestre UFRN.",
         "degrees": [
             {"type": "Doutorado", "description": "Doutorado em Engenharia de Produção - UFPE (Em andamento)"},
             {"type": "Mestrado", "description": "Mestrado em Engenharia de Produção - UFRN"},
-            {"type": "Graduação", "description": "Graduação em Engenharia de Produção - UFERSA"},
-            {"type": "Técnico", "description": "Curso Técnico em Segurança do Trabalho - IFRN"}
+            {"type": "Graduação", "description": "Graduação em Engenharia de Produção - UFERSA"}
         ],
         "teaching_experience": [
-            "Professora Substituta do Magistério Superior - UFERSA (2022–2024)",
-            "Regência de turmas: PCP I e II, Gestão de Operações em Serviços, Gestão de Projetos, Projeto Integrado, SST e Custos/POC"
-        ],
-        "advising_count": 23,
-        "jury_count": 42,
-        "publications": {
-            "articles": [
-                "DAMASCENO, M. A. A.; MAIA, J. A. et al. Case Studies on Transport Policy (Elsevier, 2025)."
-            ]
-        },
-        "languages": ["Inglês", "Espanhol", "Português"]
+            "Professora Substituta do Magistério Superior - UFERSA (2022–2024)"
+        ]
     }
 
     save_profile(
         user_id=user_id,
         full_name="Joyce Abreu Maia",
-        phone="(84) 9XXXX-XXXX",
-        lattes_url="http://lattes.cnpq.br/1932437406947269",
+        phone="(81) 99763-7186",
+        lattes_url="http://lattes.cnpq.br/4988358485750015",
         linkedin_url="https://linkedin.com/in/joyceabreumaia",
-        target_locations="Recife - PE / Mossoró - RN / Natal - RN",
+        target_locations="Recife - PE / Mossoró - RN / Natal - RN / Remoto EAD",
         lattes_data=profile_data
     )
     saved_prof = get_profile(user_id)
     assert saved_prof["full_name"] == "Joyce Abreu Maia"
     print("Profile successfully saved & retrieved:", saved_prof["full_name"])
 
-    print("\n=== TEST 3: User SMTP Configuration ===")
-    save_smtp_config(
+    print("\n=== TEST 4: Zero-Password API Configuration ===")
+    save_api_config(
         user_id=user_id,
-        smtp_host="smtp.gmail.com",
-        smtp_port=587,
-        smtp_user="joyce.test@gmail.com",
-        smtp_password_plain="abcd efgh ijkl mnop",
-        sender_name="Profa. Joyce Abreu Maia"
+        provider="gmail_web",
+        sender_email="joyce.maia@ufpe.br",
+        sender_name="Joyce Abreu Maia"
     )
-    smtp_cfg = get_smtp_config(user_id)
-    assert smtp_cfg["smtp_password"] == "abcd efgh ijkl mnop", "Password decryption failed!"
-    print("SMTP credentials securely stored and decrypted correctly.")
+    api_cfg = get_api_config(user_id)
+    assert api_cfg["provider"] == "gmail_web"
+    assert "smtp_password" not in api_cfg, "Personal password detected! Security violation."
+    print("Zero-Password API Config successfully verified (no passwords stored).")
 
-    print("\n=== TEST 4: Vacancy Import from Master Spreadsheet ===")
+    print("\n=== TEST 5: Vacancy Import from Master Spreadsheet ===")
     excel_path = Path("g:/Meu Drive/Planilha_Contatos_Docencia_Joyce_Maia.xlsx")
     if excel_path.exists():
-        count, errs = import_vacancies_from_file(user_id, excel_path, sheet_name="Recife e RMR (PE)")
-        print(f"Imported {count} vacancies from Excel. Errors: {errs}")
+        count = import_vacancies_from_file(user_id, excel_path)
+        print(f"Imported {count} vacancies from Excel.")
         vacancies = get_user_vacancies(user_id)
-        print(f"Total vacancies in user account: {len(vacancies)}")
         assert len(vacancies) > 0, "No vacancies imported!"
+        print(f"Total vacancies in user account: {len(vacancies)}")
     else:
-        print("Spreadsheet not found at path, skipping excel import test.")
+        print("Spreadsheet not found, skipping excel test.")
 
-    print("\n=== TEST 5: Tailoring & Dynamic PDF Resume Generation ===")
+    print("\n=== TEST 6: Tailoring & Dynamic PDF Generation ===")
     sample_vac = {
         "id": 1,
         "institution": "UNICAP",
@@ -98,25 +93,28 @@ def run_tests():
         "target_disciplines": "PCP, Pesquisa Operacional, Custos, Projetos"
     }
 
-    tailored_app = tailor_for_vacancy(saved_prof, sample_vac)
-    print("Tailored headline:", tailored_app.tailored_headline)
-    print("Match score:", tailored_app.match_score)
-    print("Email subject:", tailored_app.email_subject)
-
-    pdf_output = generate_tailored_pdf(tailored_app, saved_prof)
+    tailored_app = tailor_for_vacancy(saved_prof.get("lattes_data", {}), sample_vac)
+    pdf_output = generate_tailored_pdf(tailored_app, sample_vac["institution"], sample_vac["id"])
     assert Path(pdf_output).exists(), "Tailored PDF was not generated!"
     print("Tailored PDF generated successfully at:", pdf_output)
 
-    print("\n=== TEST 6: Simulated Email Dispatch (Dry-Run) ===")
+    print("\n=== TEST 7: Zero-Password Dispatch (Gmail Web Intent & Dry-Run) ===")
+    # 1. Test Gmail Web Intent link generation
+    gmail_link = generate_gmail_web_intent(sample_vac["emails"], tailored_app["email_subject"], tailored_app["email_body"])
+    assert "mail.google.com" in gmail_link
+    assert "mario.junior%40unicap.br" in gmail_link
+    print("Gmail Web Intent URL generated successfully.")
+
+    # 2. Test Dry-Run dispatch
     ok, msg = send_tailored_application_email(
         user_id=user_id,
         vacancy_id=sample_vac["id"],
         institution=sample_vac["institution"],
         recipient_emails=sample_vac["emails"],
-        subject=tailored_app.email_subject,
-        body_text=tailored_app.email_body,
+        subject=tailored_app["email_subject"],
+        body_text=tailored_app["email_body"],
         pdf_attachment_path=pdf_output,
-        smtp_config=smtp_cfg,
+        api_config=api_cfg,
         is_dry_run=True
     )
     assert ok, f"Dispatch simulation failed: {msg}"
@@ -125,9 +123,8 @@ def run_tests():
     dispatches = get_user_dispatches(user_id)
     assert len(dispatches) > 0, "No dispatches logged in audit table!"
     print(f"Audit log verified: {len(dispatches)} dispatches recorded.")
-    print("Sample log status:", dispatches[0]["status"], "| Recipient:", dispatches[0]["recipient_email"])
 
-    print("\n[ALL TESTS PASSED SUCCESSFULLY!]")
+    print("\n[ALL 7 TESTS PASSED WITH ZERO PASSWORD REQUIREMENT!]")
 
 if __name__ == "__main__":
     run_tests()

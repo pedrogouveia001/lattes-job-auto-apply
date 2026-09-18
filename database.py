@@ -69,6 +69,20 @@ def init_db():
     )
     """)
 
+    # User API & Zero-Password Email Configs Table (1 per user)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS user_api_configs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE NOT NULL,
+        provider TEXT NOT NULL DEFAULT 'gmail_web',
+        api_key_enc TEXT DEFAULT '',
+        sender_email TEXT NOT NULL,
+        sender_name TEXT NOT NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+    )
+    """)
+
     # Vacancies Table (Isolated per user)
     c.execute("""
     CREATE TABLE IF NOT EXISTS vacancies (
@@ -135,6 +149,67 @@ def authenticate_user(username_or_email: str, password: str):
     user = c.execute(query, (username_or_email.strip().lower(), username_or_email.strip().lower(), hash_password(password))).fetchone()
     conn.close()
     return dict(user) if user else None
+
+def get_or_create_google_user(email: str, name: str = ""):
+    """Retrieves or creates a user authenticated via Google OAuth."""
+    conn = get_connection()
+    c = conn.cursor()
+    email_clean = email.strip().lower()
+    user = c.execute("SELECT * FROM users WHERE email = ?", (email_clean,)).fetchone()
+    if user:
+        conn.close()
+        return dict(user)
+    
+    base_username = email_clean.split("@")[0].replace(".", "_")
+    username = base_username
+    counter = 1
+    while c.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone():
+        username = f"{base_username}_{counter}"
+        counter += 1
+        
+    c.execute("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+              (username, email_clean, "google_oauth_verified"))
+    user_id = c.lastrowid
+    conn.commit()
+    user = c.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    conn.close()
+    return dict(user)
+
+# ----------------- Zero-Password Email API Management -----------------
+
+def save_api_config(user_id: int, provider: str, sender_email: str, sender_name: str, api_key: str = ""):
+    conn = get_connection()
+    c = conn.cursor()
+    enc_key = encrypt_secret(api_key) if api_key else ""
+    existing = c.execute("SELECT id FROM user_api_configs WHERE user_id = ?", (user_id,)).fetchone()
+    if existing:
+        c.execute("""
+            UPDATE user_api_configs
+            SET provider = ?, api_key_enc = ?, sender_email = ?, sender_name = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = ?
+        """, (provider, enc_key, sender_email, sender_name, user_id))
+    else:
+        c.execute("""
+            INSERT INTO user_api_configs (user_id, provider, api_key_enc, sender_email, sender_name)
+            VALUES (?, ?, ?, ?, ?)
+        """, (user_id, provider, enc_key, sender_email, sender_name))
+    conn.commit()
+    conn.close()
+
+def get_api_config(user_id: int):
+    conn = get_connection()
+    row = conn.execute("SELECT * FROM user_api_configs WHERE user_id = ?", (user_id,)).fetchone()
+    conn.close()
+    if not row:
+        return {
+            "provider": "gmail_web",
+            "api_key": "",
+            "sender_email": "",
+            "sender_name": ""
+        }
+    data = dict(row)
+    data["api_key"] = decrypt_secret(data.get("api_key_enc", "")) if data.get("api_key_enc") else ""
+    return data
 
 # ----------------- Profile Management -----------------
 

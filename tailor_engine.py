@@ -25,6 +25,12 @@ class TailoredApplication:
     email_body: str = ""
     match_score: int = 85
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def get(self, item, default=None):
+        return getattr(self, item, default)
+
 def tailor_for_vacancy(profile: dict, vacancy: dict) -> TailoredApplication:
     """
     Produces a tailored profile and email pitch based on candidate profile and target vacancy.
