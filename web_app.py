@@ -42,8 +42,8 @@ def get_logo_base64() -> str:
 LOGO_B64 = get_logo_base64()
 
 st.set_page_config(
-    page_title="OmniMatch AI — Plataforma Inteligente de Vagas & Currículos",
-    page_icon=str(BASE_DIR / "assets" / "logo.png") if (BASE_DIR / "assets" / "logo.png").exists() else "⚡",
+    page_title="OmniMatch — Plataforma Inteligente de Vagas & Currículos",
+    page_icon=str(BASE_DIR / "assets" / "logo.png") if (BASE_DIR / "assets" / "logo.png").exists() else "💼",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -230,11 +230,11 @@ if st.session_state["user"] is None:
     st.markdown(f"""
     <div style='text-align: center; margin-top: 24px; margin-bottom: 20px;'>
         {logo_img_html}
-        <div style='font-size: 2.4rem; font-weight: 800; background: linear-gradient(90deg, #38BDF8, #818CF8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
-            OmniMatch AI
+        <div style='font-size: 2.3rem; font-weight: 800; color: #0F172A;'>
+            OmniMatch
         </div>
-        <div style='font-size: 1.05rem; color: #64748B; margin-top: 4px;'>
-            Plataforma Universal de Prospecção de Vagas, Tailoring de Currículos & Disparos
+        <div style='font-size: 1rem; color: #64748B; margin-top: 4px;'>
+            Plataforma Universal de Prospecção de Vagas, Tailoring & Envio de Currículos
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -323,21 +323,21 @@ candidate_context = {
 }
 
 # Top Navigation Bar with Logo
-nav_logo_html = f"<img src='data:image/png;base64,{LOGO_B64}' style='width: 38px; height: 38px; border-radius: 9px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.35);'>" if LOGO_B64 else "⚡"
+nav_logo_html = f"<img src='data:image/png;base64,{LOGO_B64}' style='width: 38px; height: 38px; border-radius: 8px; border: 1px solid #E2E8F0;'>" if LOGO_B64 else "💼"
 
 st.markdown(f"""
 <div class='top-nav'>
     <div style='display: flex; align-items: center; gap: 12px;'>
         {nav_logo_html}
         <div class='brand-title'>
-            OmniMatch AI <span class='brand-badge'>TALENT & JOB MATCHER</span>
+            OmniMatch <span class='brand-badge'>CAREER & JOB MATCHING</span>
         </div>
     </div>
     <div style='display: flex; align-items: center; gap: 18px;'>
         <div style='font-size: 0.88rem; color: #E2E8F0;'>
             Conectado: <strong>{current_user['email']}</strong>
         </div>
-        <div style='background: #38BDF8; color: #0F172A; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;'>
+        <div style='background: #2563EB; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;'>
             {full_name[:1].upper()}
         </div>
     </div>
@@ -901,6 +901,6 @@ with nav5:
 st.markdown("""
 <hr style='border: none; border-top: 1px solid #E2E8F0; margin-top: 40px; margin-bottom: 16px;'>
 <div style='text-align: center; font-size: 0.82rem; color: #94A3B8;'>
-    OmniMatch AI Platform • Matching Semântico Sem Viés • 100% Gratuito
+    OmniMatch Platform • Matching Semântico Sem Viés • 100% Gratuito
 </div>
 """, unsafe_allow_html=True)
