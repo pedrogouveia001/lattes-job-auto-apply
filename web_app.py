@@ -287,13 +287,13 @@ user_api = get_api_config(user_id)
 vacancies = get_user_vacancies(user_id)
 dispatches = get_user_dispatches(user_id)
 
-# Candidate Defaults & Real Data
+# Candidate Defaults & Real Data (Zero Hardcoded Bias)
 full_name = user_profile.get("full_name") or current_user.get("username", "Candidato(a)")
-target_roles = user_profile.get("target_roles") or "Docência no Ensino Superior, Engenharia de Produção, Pesquisa Operacional"
-target_disciplines = user_profile.get("target_disciplines") or "PCP, Pesquisa Operacional, Gestão da Qualidade, Logística, Custos"
-target_locations = user_profile.get("target_locations") or "Recife/RMR, Rio Grande do Norte, Remoto EAD"
+target_roles = user_profile.get("target_roles") or ""
+target_disciplines = user_profile.get("target_disciplines") or ""
+target_locations = user_profile.get("target_locations") or ""
 target_modalities = user_profile.get("target_modalities") or "Presencial, Remoto / EAD, Híbrido"
-phone_number = user_profile.get("phone") or "(81) 99763-7186"
+phone_number = user_profile.get("phone") or ""
 lattes_link = user_profile.get("lattes_url") or ""
 linkedin_link = user_profile.get("linkedin_url") or ""
 
@@ -343,12 +343,14 @@ with nav1:
     
     with col_sidebar:
         # Candidate Profile Card
-        initials = "".join([n[0] for n in full_name.split()[:2]]).upper()
+        initials = "".join([n[0] for n in full_name.split()[:2]]).upper() if full_name else "CV"
         summary_short = user_profile.get("lattes_data", {}).get("summary", "")[:120]
         if summary_short:
             summary_short += "..."
         else:
-            summary_short = "Perfil configurado para matching em tempo real."
+            summary_short = "Suba seu currículo ou preencha as vagas buscadas para ativar o Match ATS."
+
+        roles_chip = target_roles.split(',')[0].strip() if target_roles else "Defina seus cargos-alvo"
 
         st.markdown(f"""
         <div class='profile-card'>
@@ -356,7 +358,7 @@ with nav1:
             <div class='candidate-name'>{full_name}</div>
             <div class='candidate-title'>{summary_short}</div>
             <div style='margin-bottom: 12px;'>
-                <span class='stat-pill'>🎯 {target_roles.split(',')[0].strip()}</span>
+                <span class='stat-pill'>🎯 {roles_chip}</span>
             </div>
             <hr style='border: none; border-top: 1px solid #E2E8F0; margin: 12px 0;'>
             <div style='text-align: left; font-size: 0.85rem;'>
@@ -377,14 +379,14 @@ with nav1:
         """, unsafe_allow_html=True)
 
         # Quick Manual Registration of Vacancies
-        with st.expander("➕ Cadastrar Nova Vaga Manualmente", expanded=False):
+        with st.expander("➕ Cadastrar Nova Vaga Buscada Manualmente", expanded=False):
             st.caption("Adicione uma vaga específica que você encontrou para aplicar sob medida.")
-            nv_inst = st.text_input("Instituição / Empresa", key="nv_inst")
-            nv_title = st.text_input("Cargo / Curso", placeholder="Ex: Engenharia de Produção, Administração...", key="nv_title")
-            nv_disc = st.text_input("Disciplinas / Requisitos", placeholder="Ex: PCP, Pesquisa Operacional, Custos...", key="nv_disc")
-            nv_city = st.text_input("Cidade / Campus ou EAD", placeholder="Ex: Recife (Boa Vista), Remoto EAD...", key="nv_city")
-            nv_email = st.text_input("E-mail para Envio", placeholder="coordenacao@faculdade.edu.br", key="nv_email")
-            nv_cont = st.text_input("Nome do Coordenador / Contato", placeholder="Ex: Prof. Dr. Fulano", key="nv_cont")
+            nv_inst = st.text_input("Instituição / Empresa", placeholder="Ex: UFPE, UNICAP, IBM, Nubank...", key="nv_inst")
+            nv_title = st.text_input("Cargo / Curso", placeholder="Ex: Professor de Direito, Analista de Dados...", key="nv_title")
+            nv_disc = st.text_input("Disciplinas / Requisitos", placeholder="Ex: Direito Civil, Python, SQL...", key="nv_disc")
+            nv_city = st.text_input("Cidade / Campus ou EAD", placeholder="Ex: Recife, São Paulo, Remoto EAD...", key="nv_city")
+            nv_email = st.text_input("E-mail para Envio", placeholder="recrutamento@empresa.com.br", key="nv_email")
+            nv_cont = st.text_input("Nome do Contato / Coordenação", placeholder="Ex: Dr. Fulano / RH", key="nv_cont")
             nv_prio = st.selectbox("Prioridade", ["1 - Alta", "2 - Média", "3 - Baixa"], key="nv_prio")
             
             if st.button("Salvar Nova Vaga", type="primary", use_container_width=True):
@@ -394,7 +396,7 @@ with nav1:
                     time.sleep(1)
                     st.rerun()
                 else:
-                    st.error("Informe pelo menos a Instituição e o E-mail.")
+                    st.error("Informe pelo menos a Instituição/Empresa e o E-mail de contato.")
 
         # Batch Excel Import
         with st.expander("📂 Importar Planilha (Excel / CSV)", expanded=False):
@@ -410,19 +412,67 @@ with nav1:
                 st.rerun()
 
     with col_feed:
+        # Dedicated interactive card for filling sought jobs (Campo de Preenchimento das Vagas Buscadas)
+        with st.container(border=True):
+            st.markdown("#### 🎯 Preenchimento das Vagas Buscadas (Alvo Ativo)")
+            st.caption("Digite os cargos e localidades que você está buscando. O Match ATS de todas as vagas é recalculado imediatamente.")
+            
+            cp1, cp2, cp3 = st.columns([2.5, 1.8, 1])
+            with cp1:
+                live_roles = st.text_input(
+                    "💼 Cargos / Funções Buscadas",
+                    value=target_roles,
+                    placeholder="Ex: Docência, Engenharia de Software, Administração, Direito...",
+                    key="live_roles_input"
+                )
+            with cp2:
+                live_loc = st.text_input(
+                    "📍 Cidades ou Modalidades",
+                    value=target_locations,
+                    placeholder="Ex: Recife, São Paulo, Remoto, EAD...",
+                    key="live_loc_input"
+                )
+            with cp3:
+                st.write("")
+                st.write("")
+                if st.button("💾 Fixar na Conta", help="Salva estes termos no seu perfil para buscas futuras", use_container_width=True):
+                    save_profile(
+                        user_id=user_id,
+                        full_name=full_name,
+                        phone=phone_number,
+                        lattes_url=lattes_link,
+                        linkedin_url=linkedin_link,
+                        target_locations=live_loc,
+                        lattes_data=user_profile.get("lattes_data", {}),
+                        lattes_pdf_path=user_profile.get("lattes_pdf_path", ""),
+                        target_roles=live_roles,
+                        target_disciplines=target_disciplines,
+                        target_modalities=target_modalities
+                    )
+                    st.toast("Critérios de vagas buscadas salvos no seu perfil!", icon="✅")
+                    time.sleep(0.5)
+                    st.rerun()
+
+        # Dynamic context incorporating live target roles/locations
+        active_candidate_context = {
+            **candidate_context,
+            "target_roles": live_roles if live_roles else target_roles,
+            "target_locations": live_loc if live_loc else target_locations
+        }
+
         # Search & Real Filters Header
         sf1, sf2, sf3 = st.columns([2, 1, 1])
         with sf1:
-            search_query = st.text_input("🔍 Buscar no catálogo de vagas...", placeholder="Filtrar por instituição, palavra-chave, cidade ou disciplina...")
+            search_query = st.text_input("🔍 Filtrar por palavra-chave rápida...", placeholder="Filtrar por instituição, palavra-chave, cidade ou disciplina...")
         with sf2:
             sort_by = st.selectbox("Ordenar por", ["🎯 Maior Match com Meu Currículo", "⭐ Prioridade", "Mais Recentes"])
         with sf3:
-            filter_status = st.selectbox("Status", ["Todas", "A Enviar", "Já Enviadas / Preparadas"])
+            filter_match = st.selectbox("Compatibilidade Mínima", ["Todas as Vagas", "Match >= 50% (Relevantes)", "Match >= 75% (Alta Aderência)"])
 
         # Calculate Real Match for each vacancy
         scored_vacancies = []
         for vac in vacancies:
-            match_res = calculate_vacancy_match(candidate_context, vac)
+            match_res = calculate_vacancy_match(active_candidate_context, vac)
             scored_vacancies.append({
                 **vac,
                 "calculated_score": match_res["score"],
@@ -434,10 +484,11 @@ with nav1:
         if search_query:
             q = search_query.lower()
             filtered = [v for v in filtered if q in (v['institution'] + v.get('campus_city', '') + v.get('target_disciplines', '') + v.get('job_title', '')).lower()]
-        if filter_status == "A Enviar":
-            filtered = [v for v in filtered if v.get("status") == "A Enviar"]
-        elif filter_status == "Já Enviadas / Preparadas":
-            filtered = [v for v in filtered if v.get("status") != "A Enviar"]
+        
+        if "75%" in filter_match:
+            filtered = [v for v in filtered if v["calculated_score"] >= 75]
+        elif "50%" in filter_match:
+            filtered = [v for v in filtered if v["calculated_score"] >= 50]
 
         # Apply Sorting
         if "Maior Match" in sort_by:
@@ -555,7 +606,8 @@ with nav2:
             in_target_roles = st.text_area(
                 "Cargos ou Funções Alvo (separados por vírgula)",
                 value=target_roles,
-                help="Ex: Professora de Engenharia de Produção, Docente EAD, Consultora de Processos, Coordenadora de Curso",
+                placeholder="Ex: Professor Universitário, Engenheiro de Software, Consultor Financeiro, Analista de Dados, Coordenador Pedagógico...",
+                help="Informe os cargos que você deseja que o algoritmo busque e priorize.",
                 height=90
             )
 
@@ -563,7 +615,8 @@ with nav2:
             in_target_disciplines = st.text_area(
                 "Disciplinas / Especialidades Prioritárias",
                 value=target_disciplines,
-                help="Ex: PCP, Pesquisa Operacional, Gestão da Qualidade, Logística, Custos Industriais, Ergonomia",
+                placeholder="Ex: Inteligência Artificial, Direito Tributário, Finanças Corporativas, Gestão da Qualidade, Logística...",
+                help="Termos técnicos e disciplinas que você domina.",
                 height=90
             )
 
@@ -572,7 +625,8 @@ with nav2:
             in_target_locations = st.text_area(
                 "Cidades, Estados ou Regiões Alvo",
                 value=target_locations,
-                help="Ex: Recife/RMR - PE, Mossoró - RN, Natal - RN, João Pessoa - PB, São Paulo - SP",
+                placeholder="Ex: Recife/RMR - PE, São Paulo - SP, Remoto, Todo o Brasil...",
+                help="Deixe em branco para considerar todas as localidades.",
                 height=90
             )
 
@@ -580,7 +634,7 @@ with nav2:
             in_target_modalities = st.text_input(
                 "Modalidades de Trabalho",
                 value=target_modalities,
-                help="Ex: Presencial, Remoto / EAD, Híbrido"
+                placeholder="Ex: Presencial, Remoto / EAD, Híbrido"
             )
 
         if st.button("💾 Salvar Critérios de Vagas Buscadas", type="primary"):
@@ -606,28 +660,35 @@ with nav2:
 # TAB 3: MEU CURRÍCULO (IMPORTAÇÃO DE QUALQUER CURRÍCULO EM PDF OU TEXTO)
 # ==============================================================================
 with nav3:
-    st.markdown("### 👤 Meu Currículo Profissional & Acadêmico")
-    st.caption("Importe QUALQUER formato de currículo (PDF corporativo, LinkedIn, Lattes ou texto livre). O motor universal extrairá suas competências e experiências automaticamente.")
+    st.markdown("### 👤 Meu Currículo Profissional & Acadêmico (Qualquer Formato)")
+    st.caption("Importe QUALQUER formato de currículo: PDF corporativo, LinkedIn, Lattes ou texto livre. O motor universal extrai competências, formações e experiências sem restrição de área.")
 
     col_up1, col_up2 = st.columns(2)
     with col_up1:
         st.markdown("#### 📄 Upload de Arquivo (Qualquer PDF)")
         uploaded_cv = st.file_uploader("Selecione seu currículo em PDF", type=["pdf"], key="cv_pdf_universal")
     with col_up2:
-        st.markdown("#### 🔗 Links Profissionais")
-        in_phone = st.text_input("WhatsApp / Telefone de Contato", value=phone_number)
-        in_linkedin = st.text_input("Link do LinkedIn (Opcional)", value=linkedin_link)
-        in_lattes = st.text_input("Link do Lattes CNPq (Opcional)", value=lattes_link)
+        st.markdown("#### 🔗 Informações de Contato & Links")
+        in_phone = st.text_input("WhatsApp / Telefone de Contato", value=phone_number, placeholder="Ex: (81) 99999-9999")
+        in_linkedin = st.text_input("Link do LinkedIn (Opcional)", value=linkedin_link, placeholder="https://linkedin.com/in/seuperfil")
+        in_lattes = st.text_input("Link do Lattes CNPq (Opcional para quem tem)", value=lattes_link, placeholder="http://lattes.cnpq.br/...")
 
-    st.markdown("#### 📝 Resumo Profissional / Perfil Extraído")
+    st.markdown("#### 📝 Resumo Profissional / Texto do Currículo")
     current_cv_data = user_profile.get("lattes_data", {})
     in_summary = st.text_area(
         "Resumo Executivo ou Cole aqui o texto do seu currículo",
-        value=current_cv_data.get("summary", "") or "Doutoranda em Engenharia de Produção pela UFPE (CAPES 7). Mestre em Engenharia de Produção pela UFRN. Ex-Professora Substituta da UFERSA.",
+        value=current_cv_data.get("summary", ""),
+        placeholder="Cole aqui o texto do seu currículo, resumo profissional ou memorial acadêmico...",
         height=140
     )
 
-    if st.button("💾 Processar e Salvar Currículo", type="primary"):
+    col_btn_cv1, col_btn_cv2 = st.columns([1, 1])
+    with col_btn_cv1:
+        save_cv_btn = st.button("💾 Processar e Salvar Currículo", type="primary", use_container_width=True)
+    with col_btn_cv2:
+        sync_crit_btn = st.button("🪄 Preencher Vagas Buscadas com Base no Currículo", help="Extrai cargos e competências do currículo para preencher a aba de Vagas Buscadas", use_container_width=True)
+
+    if save_cv_btn or sync_crit_btn:
         parsed_data = current_cv_data.copy()
         
         # If PDF was uploaded, parse universally
@@ -648,8 +709,28 @@ with nav3:
                 in_linkedin = extracted["linkedin_url"]
             if extracted.get("summary"):
                 in_summary = extracted["summary"]
+        elif in_summary:
+            # Parse pasted text
+            extracted = parse_universal_resume(in_summary)
+            for k, v in extracted.items():
+                if v and not parsed_data.get(k):
+                    parsed_data[k] = v
+            if extracted.get("full_name") and full_name == "Candidato(a)":
+                full_name = extracted["full_name"]
 
         parsed_data["summary"] = in_summary
+
+        # Auto-sync target criteria if requested or if currently blank
+        new_target_roles = target_roles
+        new_target_disc = target_disciplines
+        if sync_crit_btn or not new_target_roles:
+            if parsed_data.get("headline"):
+                new_target_roles = parsed_data["headline"]
+            elif parsed_data.get("degrees"):
+                new_target_roles = f"Profissional em {parsed_data['degrees'][0].get('description', '')[:40]}"
+        if sync_crit_btn or not new_target_disc:
+            if parsed_data.get("skills"):
+                new_target_disc = ", ".join(parsed_data["skills"][:6])
         
         save_profile(
             user_id=user_id,
@@ -660,11 +741,11 @@ with nav3:
             target_locations=target_locations,
             lattes_data=parsed_data,
             lattes_pdf_path=parsed_data.get("pdf_saved_path", ""),
-            target_roles=target_roles,
-            target_disciplines=target_disciplines,
+            target_roles=new_target_roles,
+            target_disciplines=new_target_disc,
             target_modalities=target_modalities
         )
-        st.success("Currículo processado e salvo com sucesso!")
+        st.success("Currículo processado e salvo com sucesso! O algoritmo foi recalibrado.")
         time.sleep(1)
         st.rerun()
 

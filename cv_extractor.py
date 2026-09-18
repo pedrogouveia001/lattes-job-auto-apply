@@ -163,35 +163,81 @@ def parse_universal_resume(text: str) -> dict:
         "Professor", "Professora", "Docente", "Coordenador", "Coordenadora",
         "Engenheiro", "Engenheira", "Analista", "Desenvolvedor", "Desenvolvedora",
         "Gerente", "Consultor", "Consultora", "Especialista", "Pesquisador", "Pesquisadora",
-        "Tutor", "Instrutor", "Supervisor", "Assistente"
+        "Tutor", "Instrutor", "Supervisor", "Assistente", "Diretor", "Diretora",
+        "Médico", "Médica", "Enfermeiro", "Enfermeira", "Advogado", "Advogada",
+        "Designer", "Arquiteto", "Arquiteta", "Cientista", "Contador", "Contadora",
+        "Administrador", "Administradora", "Psicólogo", "Psicóloga", "Líder"
     ]
-    roles_regex = r'(?:' + '|'.join(job_roles) + r')\b[\w\s\(\)\,\–\-\.\:\/]{8,150}'
+    roles_regex = r'(?:' + '|'.join(job_roles) + r')\b[\w\s\(\)\,\–\-\.\:\/]{6,150}'
     for m in re.finditer(roles_regex, text, re.IGNORECASE):
         exp_line = m.group(0).strip()
-        if any(w in exp_line.lower() for w in ["professor", "docente", "turmas", "aulas", "ufpe", "ufrn", "ufersa", "faculdade", "universidade", "colegiado"]):
-            profile["teaching_experience"].append(exp_line)
+        if any(w in exp_line.lower() for w in ["professor", "docente", "turmas", "aulas", "faculdade", "universidade", "colegiado", "ensino"]):
+            if exp_line not in profile["teaching_experience"]:
+                profile["teaching_experience"].append(exp_line)
         else:
-            profile["work_experience"].append(exp_line)
+            if exp_line not in profile["work_experience"]:
+                profile["work_experience"].append(exp_line)
 
-    # 7. Skills & Core Competencies (keywords from domain)
-    common_skills = [
-        "PCP", "Pesquisa Operacional", "Gestão da Produção", "Gestão de Projetos",
-        "Logística", "Supply Chain", "Qualidade", "Six Sigma", "Lean Manufacturing",
-        "Segurança do Trabalho", "SST", "Ergonomia", "Custos", "BPMN", "Bizagi",
-        "Python", "SQL", "Excel", "Power BI", "Machine Learning", "Data Science",
-        "Moodle", "Canvas", "PBL", "Metodologias Ativas", "Design Thinking",
-        "Scrum", "Kanban", "Simulação", "Arena", "R", "Lingo", "Solver"
+    # 7. Skills & Core Competencies Extraction
+    # A) Dynamic extraction from explicit sections (Skills / Competências / Conhecimentos)
+    skills_found = set()
+    sec_match = re.search(
+        r'(?:habilidades|compet[êe]ncias|skills|conhecimentos|tecnologias|ferramentas|disciplinas|expertise)[\s\:\-]+(.*?)(?:experi[êe]ncia|forma[çc][ãa]o|educa[çc][ãa]o|hist[óo]rico|idiomas|languages|publica[çc][õo]es|\Z)',
+        text, re.DOTALL | re.IGNORECASE
+    )
+    if sec_match:
+        sec_text = sec_match.group(1)
+        # Split by comma, bullet points, pipes or newlines
+        tokens = re.split(r'[,;•\n\|\t]+', sec_text)
+        for t in tokens:
+            t_clean = t.strip()
+            # If clean token is reasonable length and doesn't look like a long sentence
+            if 2 <= len(t_clean) <= 40 and not any(w in t_clean.lower() for w in ["http", "www", "telefone", "email"]):
+                skills_found.add(t_clean)
+
+    # B) Multi-domain Keyword Catalog spanning Tech, Business, Engineering, Academic, Law, Health, Design
+    universal_catalog = [
+        # Tech & Data
+        "Python", "SQL", "JavaScript", "TypeScript", "React", "Node.js", "Java", "C#", ".NET",
+        "Docker", "Kubernetes", "AWS", "Azure", "GCP", "Git", "GitHub", "CI/CD", "Linux",
+        "Machine Learning", "Data Science", "Inteligência Artificial", "Power BI", "Tableau",
+        "Excel", "Excel Avançado", "Pandas", "NLP", "Big Data", "DevOps",
+        # Engineering & Operations
+        "PCP", "Pesquisa Operacional", "Gestão da Produção", "Logística", "Supply Chain",
+        "Qualidade", "Six Sigma", "Lean Manufacturing", "Lean Six Sigma", "5S", "Kaizen",
+        "Segurança do Trabalho", "SST", "Ergonomia", "Custos Industriais", "Custos",
+        "BPMN", "Bizagi", "AutoCAD", "Revit", "SolidWorks", "Simulação", "Arena", "Solver",
+        # Business, Management & Finance
+        "Gestão de Projetos", "Scrum", "Kanban", "Metodologias Ágeis", "Planejamento Estratégico",
+        "Gestão de Pessoas", "Liderança", "Negociação", "Vendas", "CRM", "Salesforce",
+        "Finanças", "Contabilidade", "Controladoria", "Auditoria", "Orçamento", "DRE", "Fluxo de Caixa",
+        # Academic & Education
+        "Docência", "Ensino Superior", "EAD", "Metodologias Ativas", "PBL", "Moodle", "Canvas",
+        "Google Classroom", "Orientação de TCC", "Planos de Ensino", "Avaliação da Aprendizagem",
+        "Coordenação de Curso", "ENADE", "Regulação MEC", "Bancas Examinadoras",
+        # Law & Compliance
+        "Direito Civil", "Direito Trabalhista", "Direito Tributário", "Direito Empresarial",
+        "Direito Penal", "LGPD", "Compliance", "Contratos", "Processo Civil", "Mediação",
+        # Health & Science
+        "Enfermagem", "Farmácia", "Fisioterapia", "Nutrição", "Psicologia", "Saúde Coletiva",
+        "Bioestatística", "Metodologia Científica", "Epidemiologia", "Gestão Hospitalar",
+        # Marketing & Design
+        "Marketing Digital", "SEO", "SEM", "Google Analytics", "Social Media", "Copywriting",
+        "Branding", "Design Gráfico", "Photoshop", "Illustrator", "Figma", "UI/UX"
     ]
-    found_skills = []
+
     norm_text = normalize_str(text)
-    for skill in common_skills:
-        if normalize_str(skill) in norm_text:
-            found_skills.append(skill)
-    profile["skills"] = found_skills
+    for kw in universal_catalog:
+        # Match whole word or exact normalized token
+        kw_norm = normalize_str(kw)
+        if re.search(r'\b' + re.escape(kw_norm) + r'\b', norm_text):
+            skills_found.add(kw)
+
+    profile["skills"] = sorted(list(skills_found))
 
     # 8. Languages
     languages = []
-    for lang in ["Inglês", "Espanhol", "Francês", "Alemão", "Italiano", "Português"]:
+    for lang in ["Inglês", "Espanhol", "Francês", "Alemão", "Italiano", "Português", "Mandarim"]:
         if re.search(r'\b' + lang + r'\b', text, re.IGNORECASE):
             languages.append(lang)
     profile["languages"] = languages
@@ -217,14 +263,18 @@ def parse_universal_resume(text: str) -> dict:
 
     return profile
 
-def extract_from_file_or_text(file_path_or_text: str) -> dict:
-    """Universal parser entrypoint for any file path or raw string."""
-    p = Path(file_path_or_text)
-    if p.exists() and p.is_file() and p.suffix.lower() == ".pdf":
-        raw_text = extract_text_from_pdf(p)
+def extract_from_file_or_text(file_path_or_text: str | Path) -> dict:
+    """Universal parser entrypoint for any file path, uploaded bytes or raw string."""
+    if isinstance(file_path_or_text, (str, Path)):
+        p = Path(file_path_or_text)
+        if p.exists() and p.is_file() and p.suffix.lower() == ".pdf":
+            raw_text = extract_text_from_pdf(p)
+        else:
+            raw_text = str(file_path_or_text)
     else:
-        raw_text = file_path_or_text
+        raw_text = str(file_path_or_text)
     return parse_universal_resume(raw_text)
 
 # Alias for backward compatibility
 parse_lattes_text = parse_universal_resume
+
